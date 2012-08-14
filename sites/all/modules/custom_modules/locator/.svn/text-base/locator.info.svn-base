@@ -1,4 +1,0 @@
-; $Id $
-name = "Locator"
-description = "Display diffent template based on location"
-version = "5.x-1.x-dev"

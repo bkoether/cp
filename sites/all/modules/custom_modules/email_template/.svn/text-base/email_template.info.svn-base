@@ -1,4 +1,0 @@
-; $Id $
-name = "Email template"
-description = "Creates html template for the content of a node"
-version = "5.x-1.x-dev"

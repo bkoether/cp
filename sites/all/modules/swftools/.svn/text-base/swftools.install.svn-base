@@ -1,8 +1,0 @@
-<?php
-
-// $id:$
-
-function swftools_uninstall() {
-  db_query("DELETE from {variable} WHERE name LIKE 'swftools%'");
-}
-

@@ -1,145 +1,0 @@
-8
-
-dir
-721
-http://svn.dailydose.ca/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n
-http://svn.dailydose.ca
-
-
-
-2010-04-02T03:10:28.535259Z
-630
-weston
-
-
-svn:special svn:externals svn:needs-lock
-
-
-
-
-
-
-
-
-
-
-
-0e0cc069-df17-4a3a-be03-5ea6ad17db6b
-
-i18n.install
-file
-
-
-
-
-2011-10-06T07:01:04.000000Z
-fc605aa10963f7467f2d6521c8ca2c1a
-2008-11-19T23:44:48.346916Z
-128
-chris
-
-INSTALL.txt
-file
-
-
-
-
-2011-10-06T07:01:04.000000Z
-7783137424847e8ea683b98c846cc1d5
-2008-11-19T23:44:48.346916Z
-128
-chris
-
-flags
-dir
-
-experimental
-dir
-
-translation
-dir
-
-LICENSE.txt
-file
-
-
-
-
-2011-10-06T07:01:04.000000Z
-998ed0c116c0cebfcd9b2107b0d82973
-2008-11-19T23:44:48.346916Z
-128
-chris
-
-i18nprofile
-dir
-
-contrib
-dir
-
-i18n.module
-file
-
-
-
-
-2011-10-06T07:01:04.000000Z
-c843bdb833ba8bdb97ef8a8a5c91d0f0
-2008-11-29T22:41:55.546757Z
-349
-chris
-
-CHANGELOG.txt
-file
-
-
-
-
-2011-10-06T07:01:04.000000Z
-1a8bfde353ebccd6477b1c08b5add730
-2008-11-19T23:44:48.346916Z
-128
-chris
-
-i18n.info
-file
-
-
-
-
-2011-10-06T07:01:04.000000Z
-bd91bd33237acefc8efcc5da69d5b99b
-2010-04-02T03:10:28.535259Z
-630
-weston
-
-README.txt
-file
-
-
-
-
-2011-10-06T07:01:04.000000Z
-941b1307e6a2510ece5c97b1fd271d6d
-2008-11-19T23:44:48.346916Z
-128
-chris
-
-CREDITS.txt
-file
-
-
-
-
-2011-10-06T07:01:04.000000Z
-ba1b7d5e6b6b6b3c89cfa52cc30a3adf
-2008-11-19T23:44:48.346916Z
-128
-chris
-
-i18nblocks
-dir
-
-po
-dir
-

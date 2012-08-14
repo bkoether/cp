@@ -1,4 +1,0 @@
-; $Id $
-name = "Favourites Page"
-description = "Creates a page with the user's favourites"
-version = "5.x-1.x-dev"

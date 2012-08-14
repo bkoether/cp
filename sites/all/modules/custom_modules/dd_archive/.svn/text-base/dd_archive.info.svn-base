@@ -1,4 +1,0 @@
-; $Id $
-name = "DD Archive"
-description = "Allows visitors to view content filtered by date."
-version = "5.x-1.x-dev"
