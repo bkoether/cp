@@ -1,0 +1,70 @@
+8
+
+dir
+721
+http://svn.dailydose.ca/dailydose.ca/tags/20111005-1/modules/date/date_popup
+http://svn.dailydose.ca
+
+
+
+2009-10-09T00:12:18.836974Z
+599
+weston
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0e0cc069-df17-4a3a-be03-5ea6ad17db6b
+
+date_popup.module
+file
+
+
+
+
+2011-10-06T07:01:12.000000Z
+6e8b16e89dec145005b708c3836366f5
+2009-10-09T00:12:18.836974Z
+599
+weston
+
+themes
+dir
+
+date_popup.install
+file
+
+
+
+
+2011-10-06T07:01:12.000000Z
+9c9616946fcb82c3ef9e0fe11214868d
+2009-10-09T00:12:18.836974Z
+599
+weston
+
+lib
+dir
+
+date_popup.info
+file
+
+
+
+
+2011-10-06T07:01:12.000000Z
+a8baf8e91f757c7f8dd83bd66f270c3c
+2009-10-09T00:12:18.836974Z
+599
+weston
+

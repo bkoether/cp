@@ -1,0 +1,31 @@
+<?php
+// $Id:
+
+function constantcontact_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $query =  db_query("CREATE TABLE {constantcontact} (
+                  email varchar(80) NOT NULL default '',
+                  lists text NOT NULL,
+                  format char(1) NOT NULL default 'H',
+                  PRIMARY KEY  (`email`)
+                ) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+      break;
+  }
+  if(!$query) {
+    drupal_set_message(t('The table installation for the Constant Contact module failed.'), 'error');
+  }
+}
+function constantcontact_uninstall() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $query =  db_query("DROP TABLE {constantcontact}");
+      break;
+  }
+  if(!$query) {
+    drupal_set_message(t('The removal of the database tables for the Constant Contact module failed.'), 'error');
+  }
+}
+?>

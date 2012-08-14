@@ -1,0 +1,287 @@
+<?php
+/**
+ * @file
+ * cp_export module
+ */
+
+/**
+ * Mapping of taxonomies.
+ *
+ * The category section of the map has the subject code
+ * as the key and the title as the value.
+ * Example:
+ *   '4' => array( //HEALTH & BEAUTY
+ *     'en' => array('SUBJECT_CODE' => 'TITLE'),
+ *     'fr' => array('SUBJECT_CODE' => 'TITLE'),
+ *   ),
+ */
+function cp_export_map() {
+  $map = array(
+    'city' => array(
+      '1' => 'VCR', //Vancouver
+      '2' => 'TOR', //Toronto
+      '3' => 'MTLE', //Montreal (English)
+      '669' => 'MTLF', //Montréal (French)
+      '782' => 'CGY', //Calgary
+    ),
+    'category' => array(
+      '4' => array( //HEALTH & BEAUTY
+        'en' => array('xhealth' => 'Health'),
+        'fr' => array('frhealth' => 'Health'), //DUMMY ENTRIES
+      ),
+      '5' => array( //FASHION & SHOPPING
+        'en' => array('fashion' => 'Fashion'),
+        'fr' => array('frfashion' => 'Fashion'), //DUMMY ENTRIES
+      ),
+      '6' => array(  //HOME & DECOR
+        'en' => array('home' => 'Home'), //DUMMY ENTRIES
+        'fr' => array('frhome' => 'Home'), //DUMMY ENTRIES
+      ),
+      '7' => array( //ARTS & CULTURE
+        'en' => array('arts' => 'Arts'), //DUMMY ENTRIES
+        'fr' => array('frarts' => 'Arts'), //DUMMY ENTRIES
+      ),
+      '8' => array( //TRAVEL & LEISURE
+        'en' => array('travel' => 'Travel'), //DUMMY ENTRIES
+        'fr' => array('frtravel' => 'Travel'),
+      ),
+      '9' => array( //DINING & NIGHTLIFE
+        'en' => array('food' => 'Food'),
+        'fr' => array('frfood' => 'Food'), //DUMMY ENTRIES
+      ),
+      '10' => array( //MOMS & KIDS
+        'en' => array('Ufamily' => 'Home+Family'),
+        'fr' => array('1FamilyFR' => 'Family'),
+      ),
+    ),
+  );
+  return $map;
+}
+
+/**
+ * Implements HOOK_perm().
+ */
+function cp_export_perm() {
+  $permission = array('administer cp export');
+  return $permission;
+}
+
+/**
+ * Implements HOOK_menu().
+ */
+function cp_export_menu($mayCache) {
+  if ($mayCache) {
+    $items[] = array(
+      'path' => 'admin/settings/cp_export',
+      'title' => t("CP Export"),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('cp_export_settings'),
+      'access' => user_access('administer cp export'),
+    );
+    return $items;
+  }
+}
+/**
+ * Configuration form
+ */
+function cp_export_settings() {
+  $form['cp_ftp_server'] = array(
+    '#type' => 'textfield',
+    '#default_value' => check_plain(variable_get('cp_ftp_server', '')),
+    '#maxlength' => 50,
+    '#description' => t('Enter your FTP Server'),
+  );
+  $form['cp_ftp_user'] = array(
+    '#type' => 'textfield',
+    '#default_value' => check_plain(variable_get('cp_ftp_user', '')),
+    '#maxlength' => 50,
+    '#description' => t('Enter your FTP Username'),
+  );
+  $form['cp_ftp_pass'] = array(
+    '#type' => 'password',
+    '#default_value' => check_plain(variable_get('cp_ftp_pass', 0)),
+    '#maxlength' => 50,
+    '#size' => 15,
+    '#description' => t('Enter your FTP Password'),
+  );
+  $form['cp_ftp_dir'] = array(
+    '#type' => 'textfield',
+    '#default_value' => check_plain(variable_get('cp_ftp_dir', '')),
+    '#maxlength' => 50,
+    '#description' => t('Enter your default directory, this will most likely be public_html or blank'),
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implements HOOK_nodeapi().
+ */
+function cp_export_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL){
+  if ($node->type == 'blog' || $node->type == 'daily_dose') {
+    switch($op){
+      case 'insert':
+        // LEAVE IN FOR FUTURE USE
+      break;
+
+      case 'view':
+      // LEAVE IN FOR FUTURE USE
+      // Display a message that this node is syndicated
+      //   if (node_access('update', $node) && isset($node->field_syndicate_content[0]['value']) && $node->field_syndicate_content[0]['value']) {
+
+      //     $syn_time = $node->field_syndication_time[0]['value'];
+      //     $time_text = format_date($syn_time, 'large');
+      //     // Determine if the syndication time is in the past or future.
+      //     if($syn_time > time()){
+      //       drupal_set_message('This node will be queued for syndication on:<br/>' . $time_text);
+      //     }
+      //     else {
+      //       drupal_set_message('This node was queued for syndication on:<br/>' . $time_text);
+      //     }
+      //   }
+      // break;
+    }
+  }
+}
+
+/**
+ * Create the xml version of the node.
+ */
+function cp_export_save_node($nid) {
+  $node = node_load($nid);
+
+  // Decide which template file to use
+  if ($node->type == 'blog') {
+    $template_file = 'blog.xml';
+  }
+  else {
+    $template_file = 'daily_dose.xml';
+  }
+  // Read the template file
+  $template = file_get_contents(drupal_get_path('module', 'cp_export') . "/" . $template_file);
+
+  if ($template) {
+    // Get the mapping
+    $search = array(
+      '[TITLE]',
+      '[ID]',
+      '[CREATED_LONG]',
+      '[CREATED_SHORT]',
+      '[BODY]'
+    );
+    $replace = array(
+      $node->title,
+      $node->id,
+      date(DATE_ATOM, $node->created),
+      format_date($node->created, 'custom', 'Ymd'),
+      _cp_export_process_body($node->body)
+    );
+    $new_file = str_replace($search, $replace, $template);
+
+    $file_dir = file_create_path(file_directory_path().'/cp_export');
+    file_check_directory($file_dir, 1);
+    $export_file = $file_dir . '/' . time() . '.xml';
+    $file = fopen($export_file, "w");
+    if(!fwrite($file, $new_file)) {
+      drupal_set_message('Unable to write to local file', 'error');
+      return;
+    }
+    fclose($file);
+  }
+  else {
+    drupal_set_message('Unable to read template file', 'error');
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function cp_export_cron() {
+  // Get all nodes that are set to be syndicated
+  $result = db_query('SELECT c.nid FROM {node} n LEFT JOIN {content_type_blog} c
+    ON n.nid = c.nid AND n.vid = c.vid
+    WHERE c.field_cp_syndication_flag_value = 1
+    AND c.field_cp_syndication_delivered_value IS NULL
+    AND c.field_cp_syndication_time_value <= NOW();');
+
+  while($node = db_fetch_object($result)) {
+    if(cp_export_save_node($node->nid)){
+      watchdog('cp_syndication', 'Succesfully syndicated Node ID: ' . $node->nid, WATCHDOG_NOTICE, 'node/' . $node->nid);
+    }
+    else {
+      watchdog('cp_syndication', 'Error while syndicating Node ID: ' . $node->nid, WATCHDOG_ERROR, 'node/' . $node->nid);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function cp_export_form_alter($form_id, &$form) {
+  if (isset($form['form_id']) && isset($form['#node'])) {
+    if ($form_id == 'blog_node_form' || $form_id == 'daily_dose_node_form') {
+      $node = $form['#node'];
+
+      // drupal_set_message('<pre>'.print_r($node,1).'</pre>');
+      // Add a syndication fieldset
+      $form['syndication_settings'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Syndication options'),
+        '#collapsible' => TRUE,
+        '#collapsed' => $node->field_cp_syndication_flag[0]['value'] ? FALSE : TRUE,
+        '#weight' => 36
+      );
+
+      // Move the fields into the fieldset
+      $form['syndication_settings']['field_cp_syndication_flag'] = $form['field_cp_syndication_flag'];
+      $form['syndication_settings']['field_cp_syndication_flag']['#weight'] = -1;
+
+      $form['syndication_settings']['field_cp_syndication_time'] = $form['field_cp_syndication_time'];
+      $form['syndication_settings']['field_cp_syndication_delivered'] = $form['field_cp_syndication_delivered'];
+
+      // If a deliver time is set we show that date and hide all other fields
+      if ($node->field_cp_syndication_delivered[0]['value']) {
+        $form['syndication_settings']['information'] = array(
+          '#value' => t('This post was syndicated on: ') . $node->field_cp_syndication_delivered[0]['value']
+        );
+
+        $form['syndication_settings']['field_cp_syndication_flag']['#prefix'] = '<div style="display:none;">';
+        $form['syndication_settings']['field_cp_syndication_flag']['#suffix'] = '</div>';
+
+        $form['syndication_settings']['field_cp_syndication_time']['#prefix'] = '<div style="display:none;">';
+        $form['syndication_settings']['field_cp_syndication_time']['#suffix'] = '</div>';
+
+        $form['syndication_settings']['field_cp_syndication_delivered']['#prefix'] = '<div style="display:none;">';
+        $form['syndication_settings']['field_cp_syndication_delivered']['#suffix'] = '</div>';
+      }
+      else {
+        $form['syndication_settings']['field_cp_syndication_delivered']['#type'] = 'hidden';
+      }
+
+
+
+
+      unset($form['field_cp_syndication_flag']);
+      unset($form['field_cp_syndication_time']);
+      unset($form['field_cp_syndication_delivered']);
+    }
+  }
+}
+
+/**
+ * Helper function to clean out the body text.
+ */
+function _cp_export_process_body($body) {
+  // Strip everything beside p tags
+  $text = strip_tags($body, '<p>');
+
+  // Now split it into an array and loop through it.
+  $clean = "";
+  $count = 1;
+  $parts = explode('</p>', $text);
+  foreach ($parts as $p) {
+    $p = strip_tags($p);
+    $clean .= '<CPStoryPara Number="' . $count . '">' . $p . '</CPStoryPara>';
+    $count++;
+  }
+  return $clean;
+}

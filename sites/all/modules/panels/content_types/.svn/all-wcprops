@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/panels/content_types
+END
+block.inc
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/panels/content_types/block.inc
+END
+custom.inc
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/panels/content_types/custom.inc
+END
+views.inc
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/panels/content_types/views.inc
+END
+node.inc
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/panels/content_types/node.inc
+END

@@ -1,0 +1,64 @@
+<?php
+// $Id$
+/**
+ * Partials Module
+ */
+
+function partial_install() {
+  drupal_set_message('Installing partial module...');
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      $retVal = db_query("CREATE TABLE {partial} (
+                  pid int(10) unsigned NOT NULL,
+                  title varchar(255),
+                  module varchar(255),
+                  theme varchar(255),
+                  view_type varchar(10) NOT NULL,
+                  view_columns tinyint(3) unsigned default '0' NOT NULL,
+                  throttle tinyint(1) unsigned,
+                  partial_description varchar(255),
+                  partial_file varchar(80),
+                  use_folder tinyint(1) unsigned,
+                  node_prefix tinyint(1) unsigned,
+                  provide_page tinyint(1) unsigned,
+                  page_title varchar(80),
+                  page_url varchar(80),
+                  provide_simple_page tinyint(1) unsigned,
+                  simple_page_title varchar(80),
+                  simple_page_url varchar(80),
+                  provide_view_style tinyint(4) unsigned,
+                  provide_block tinyint(1) unsigned,
+                  block_title varchar(80),
+                  use_internal_template tinyint(4) unsigned,
+                  internal_template longtext,
+                  use_internal_php tinyint(1) unsigned,
+                  internal_php longtext,
+                  use_internal_js tinyint(1) unsigned,
+                  internal_js longtext,
+                  use_internal_css tinyint(1) unsigned,
+                  internal_css longtext,
+                  PRIMARY KEY (pid))");
+      if ($retVal) drupal_set_message('Added partial table.');
+      else drupal_set_message('Error creating partial table.');
+      $retVal2 = db_query("CREATE TABLE {partial_properties} (
+                  pid int(10) unsigned NOT NULL,
+                  name varchar(30),
+                  label varchar(60),
+                  type varchar(80),
+                  attributes varchar(255),
+                  value varchar(255),
+                  PRIMARY KEY (pid, name))");
+      if ($retVal2) drupal_set_message('Added partial properties table.');
+      else drupal_set_message('Error adding partial properties table.');
+      break;
+  }
+  if ($retVal && $retVal2) drupal_set_message('Partial installation complete.');
+  else drupal_set_message('Partial installation failure.'); 
+}
+
+function partial_uninstall() {
+  db_query("DROP TABLE {partial}");
+  db_query("DROP TABLE {partial_properties}");
+  variable_del('partial_link');
+}

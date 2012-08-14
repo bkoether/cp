@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/favorite_nodes
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/favorite_nodes/LICENSE.txt
+END
+favorite_nodes.info
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/favorite_nodes/favorite_nodes.info
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/favorite_nodes/README.txt
+END
+favorite_nodes.module
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/favorite_nodes/favorite_nodes.module
+END
+favorite_nodes.install
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/favorite_nodes/favorite_nodes.install
+END

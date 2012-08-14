@@ -1,0 +1,106 @@
+8
+
+dir
+721
+http://svn.dailydose.ca/dailydose.ca/tags/20111005-1/modules/swfobject_api
+http://svn.dailydose.ca
+
+
+
+2008-08-27T00:48:49.326014Z
+64
+chris
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0e0cc069-df17-4a3a-be03-5ea6ad17db6b
+
+LICENSE.txt
+file
+
+
+
+
+2011-10-06T07:01:13.000000Z
+998ed0c116c0cebfcd9b2107b0d82973
+2008-08-27T00:48:49.326014Z
+64
+chris
+
+swfobject_api.module
+file
+
+
+
+
+2011-10-06T07:01:13.000000Z
+106c05bc07304d5e71ea6872e9625286
+2008-08-27T00:48:49.326014Z
+64
+chris
+
+swfobject_api.install
+file
+
+
+
+
+2011-10-06T07:01:13.000000Z
+3ba6e9298b5003fb649117a41557c4ab
+2008-08-27T00:48:49.326014Z
+64
+chris
+
+swfobject_api.info
+file
+
+
+
+
+2011-10-06T07:01:13.000000Z
+98558c3c2a6f99389b43270c1b0c251a
+2008-08-27T00:48:49.326014Z
+64
+chris
+
+README.txt
+file
+
+
+
+
+2011-10-06T07:01:13.000000Z
+2f9cd37bc55ec5dcd8345b65870f650e
+2008-08-27T00:48:49.326014Z
+64
+chris
+
+.cvsignore
+file
+
+
+
+
+2011-10-06T07:01:13.000000Z
+4586f6c028b8c68b87dfbf66b3574e37
+2008-08-27T00:48:49.326014Z
+64
+chris
+
+.settings
+dir
+
+po
+dir
+

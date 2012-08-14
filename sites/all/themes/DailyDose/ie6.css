@@ -1,0 +1,63 @@
+@import url(lbb_ie6.css);
+
+#block-block-2 img{
+	width:510px;
+}
+.main-content {
+  width:521px;
+}
+#inner-main .ntype-daily-dose .content p{
+  width:320px;
+}
+#sidebar-left input#edit-submit{
+  width:55px
+}
+a#login-link,
+a#logout-link{
+	overflow:hidden;
+}
+#header #header-region a#logout-link:hover,
+#header #header-region a#login-link:hover{
+  background-position:0 -11px;
+}
+li .daily-dose .view-data-body{
+	height:170px;
+}
+.top10-title{
+	padding-top:3px;	
+}
+.content-info-wrapper .forum-content, .comment-content{
+	word-wrap:break-word;
+}
+.top10-title{
+	padding-top:4px;
+}
+#archive-container li p,
+#archive-container .archive_year li a{
+	padding:5px 0 10px;
+}
+.node .content p.page-intro{
+	width:490px;
+}
+p#terms{
+	top:-47px;
+	left:22px;
+}
+.main-content h1.title.sIFR-replaced{
+	position:static;
+}
+#inner-main{
+	width:99%;
+}
+#holds-content{
+	zoom:1;
+}
+#header  {
+	width:732px;
+}
+
+/* Replacing PNG by Gif*/
+
+body .meta-block .dose-links h4 {
+  background: transparent url(images/content/block-top-ie6.gif) no-repeat top left;
+}

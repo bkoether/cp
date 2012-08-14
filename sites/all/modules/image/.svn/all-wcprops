@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image/LICENSE.txt
+END
+INSTALL.txt
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image/INSTALL.txt
+END
+views.inc
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image/views.inc
+END
+image.module
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image/image.module
+END
+image.imagemagick.inc
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image/image.imagemagick.inc
+END
+image.install
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image/image.install
+END
+CREDITS.txt
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image/CREDITS.txt
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image/README.txt
+END
+image.info
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/image/image.info
+END

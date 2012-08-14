@@ -1,0 +1,449 @@
+<?php
+// $Id $
+
+
+/**
+ * @file
+ * Enables "Single Sign-Ons" between related Drupal sites on one server
+ * with a shared database.
+ *
+ * Installation and activation are simple:
+ *   + Put this file in your modules directory.
+ *   + If you haven't done so already, create site sub-directories in the
+ *     "sites" directory for each of your domains.  Put "settings.php"
+ *     files in each of those directories.  Edit each of the settings.php
+ *     files to values appropriate for the given domain.
+ *   + Make sure the "$db_prefix" variable is set correctly in each
+ *     settings.php file (see details below).
+ *   + Create the site specific and shared database tables defined in the
+ *     "$db_prefix" variable (see details below).
+ *   + On each site, starting with the master site:
+ *      + Log in as administrator.
+ *      + Enable the "singlesignon" module
+ *         (via the checkbox in the administer | modules interface).
+ *      + Enter the URL of the master site
+ *         (via administer | settings | singlesignon).
+ *   + Delete cookies from all of your Drupal sites.
+ *
+ * This module relies on several tables being shared between the master and
+ * slave sites.  Here is an example of the "$db_prefix" variable you need to
+ * establish in all of your "settings.php" files in the "sites" directory.
+ * Each site should have a unique name in place of "somesitename_".  While
+ * you can rename "shared_" to something else, the prefixes must be the
+ * same for all sites.
+ *
+ * @verbatim
+ * $db_prefix = array(
+ *   'default'        => 'somesitename_',
+ *   'authmap'        => 'shared_',
+ *   'profile_fields' => 'shared_',
+ *   'profile_values' => 'shared_',
+ *   'role'           => 'shared_',
+ *   'sequences'      => 'shared_',
+ *   'sessions'       => 'shared_',
+ *   'users'          => 'shared_',
+ *   'users_roles'    => 'shared_',
+ *   'users_uid_seq'  => 'shared_',  // for pgsql
+ * );
+ * @endverbatim
+ *
+ * @link     http://drupal.org/project/singlesignon
+ * @author   Primary Author: Daniel Convissor <danielc@analysisandsolutions.com>
+ * @author   Maintainer: Tim Nelson <wayland@wayland.id.au>
+ * @version  $Revision: 1.21.2.14 $
+ */
+
+// {{{ core functions
+
+include_once('sessions_extra.inc');
+
+/**
+ * Implementation of hook_init().
+ *
+ * Automatically invoked for each hit to a Drupal website if the
+ * "singlesignon" module is enabled.
+ */
+function singlesignon_init() {
+  global $user, $_singlesignon_bot_matches;
+
+  $variable_defaults = array(
+    'useragents_case' => '/Google|Yahoo|BlogPulse|ia_archiver|Pingdom|Teoma|Netcraft|Mnogosearch|page.store|libwww.perl|libcurl|del.icio.us|wiji/',
+    'useragents_nocase' => '/bot|spider/i',
+    // Digg
+    'client_IP' => '/64.191.203.34/',
+    // Allows remote cron, feed, and rss
+    'target_url' => '/\/cron.php$|\/feed$|\/rss.xml$/',
+  );
+
+  if (variable_get('singlesignon_use_domain_module', 0) && function_exists('domain_default')) {
+    $master_url = _singlesignon_get_default_domain();
+  }
+  else {
+    $master_url = variable_get('singlesignon_master_url', '');
+  }
+  $_singlesignon_bot_matches = variable_get('singlesignon_bot_matches', $variable_defaults);
+
+  if (
+    // If the Master URL isn't set, we can't know what to do, so do nothing
+    (!$master_url)
+    // Likewise, bots don't sign on
+    || _singlesignon_is_bot()
+  ) {
+    return null;
+  }
+
+  $extra_base_url = _singlesignon_base_url();
+  if (empty($_SESSION['singlesignon_prior_sid']) || $_SESSION['singlesignon_prior_sid'] != session_id()) {
+    if ($extra_base_url != $master_url) {
+      if (!empty($_GET['singlesignon_dest'])) {
+        // User was sent back to a slave site by this module but doesn't have
+        // a session.  They clearly don't have cookies enabled.
+        drupal_set_message(t('Cookies are required.'), 'error');
+        return;
+      }
+
+      // This is the user's first hit to a slave site.  Take note of their
+      // session ID, since that's how we tell if they've been here or not.
+      // Then go to the master site to see if they are logged in over there.
+      $_SESSION['singlesignon_prior_sid'] = session_id();
+
+      _singlesignon_goto_url($master_url, 'singlesignon/initial_check');
+    }
+  }
+
+  // arg() only available if bootstrap has reached PATH.
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_PATH);
+
+  $arg0 = arg(0);
+
+  switch ($arg0) {
+    case 'logout':
+      if ($user->uid) {
+        _singlesignon_session_logout($user->uid);
+      }
+      return;
+
+    case 'singlesignon':
+      if ($extra_base_url == $master_url) {
+        _singlesignon_master($master_url, $arg0, arg(1));
+      }
+      return;
+
+    default:
+      $op = isset($_POST['op']) ? $_POST['op'] : '';
+      if (function_exists('t') ? $op == t('Log in') : $op == 'Log in') {
+        // User is in the middle of logging in.  Can't do the master/slave
+        // checking yet because the login process happens after this module
+        // called.  Set a flag telling us to do the master/slave checking
+        // once the login process is done.
+        $_SESSION['singlesignon_just_loggged_in'] = true;
+        return;
+      }
+  }
+
+  if (!empty($_SESSION['singlesignon_just_loggged_in'])) {
+    unset($_SESSION['singlesignon_just_loggged_in']);
+    if ($extra_base_url == $master_url) {
+      if (!$user->uid || empty($_SESSION['singlesignon_slave_sessions']) || !is_array($_SESSION['singlesignon_slave_sessions']) || !_singlesignon_validate_sid($_SESSION['singlesignon_slave_sessions'])) {
+        // Login failed or the user has no sessions on any slaves.
+        return;
+      }
+      // User just logged into the master server.  Update the slave sessions'
+      // user ID's to be the user ID they have on the master server.
+      _singlesignon_session_update_all_uids($user->uid);
+      return;
+    }
+    else if ($user->uid) {
+      // Tell the master site the user just logged in.
+      _singlesignon_goto_url($master_url, 'singlesignon/login');
+    }
+  }
+}
+
+/**
+ * Contains the processes needed by the master server.
+ */
+function _singlesignon_master($master_url, $arg0, $arg1) {
+  global $user;
+
+  if (empty($_GET['singlesignon_dest']) || is_array($_GET['singlesignon_dest']) || empty($_GET['slave_session']) || is_array($_GET['slave_session']) || !_singlesignon_validate_sid($_GET['slave_session'])) {
+    echo t('Thank you for hacking.');
+    exit;
+  }
+
+  if (!isset($_SESSION['singlesignon_slave_sessions'])) {
+    $_SESSION['singlesignon_slave_sessions'] = array($_GET['slave_session']);
+  }
+  elseif (!in_array($_GET['slave_session'], $_SESSION['singlesignon_slave_sessions'])) {
+    $_SESSION['singlesignon_slave_sessions'][] = $_GET['slave_session'];
+  }
+
+  switch ($arg1) {
+    case 'initial_check':
+      // User had first hit on given slave site so came here.
+      if ($user->uid) {
+        // User is already logged into the master server.  Update the slave
+        // session's user ID to be the user ID they have on the master server.
+        _singlesignon_session_update_user();
+      }
+      _singlesignon_goto($_GET['singlesignon_dest']);
+      break;
+
+    case 'login':
+      // User is coming to the master site to say they just logged on to a
+      // slave.  Set master site's user ID to be their one from the slave.
+      _singlesignon_session_login($user);
+      _singlesignon_goto($_GET['singlesignon_dest']);
+  }
+}
+
+
+// }}}
+// {{{ helper functions
+
+/**
+ * Sets up the URL and goes to it
+ */
+function _singlesignon_goto_url($master_url, $url) {
+      // url() only available if bootstrap has reached FULL.
+      drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+
+      $query = 'slave_session='. session_id() .'&singlesignon_dest='. _singlesignon_get_dest();
+      _singlesignon_goto($master_url . url($url, $query));
+}
+
+/**
+ * Gets the base url and fixess it up a bit
+ */
+function _singlesignon_base_url() {
+  global $base_url;
+
+  $scheme_authority = preg_replace('@^(https?://[^/]+).*@', '\\1', $base_url);
+  return ($scheme_authority);
+}
+
+
+/**
+ * Combines $base_url and request_uri() in a safe, portable way.
+ */
+function _singlesignon_get_dest() {
+  global $base_url;
+
+  $scheme_authority = preg_replace('@^(https?://[^/]+).*@', '\\1', $base_url);
+  return rawurlencode($scheme_authority . request_uri());
+}
+
+/**
+ * Sanitizes the given url then forwards the user to it.
+ *
+ * This function is used because drupal_goto() doesn't allow redirects to
+ * other sites and uses $_REQUEST['destination'] at inappropriate times.
+ */
+function _singlesignon_goto($uri) {
+  header('Location: '. str_replace(array("\r", "\n"), '', $uri));
+  exit;
+}
+
+/**
+ * Makes sure sid values are legitimate.
+ *
+ * This is a safeguard against SQL injection and overflow attacks.
+ */
+function _singlesignon_validate_sid($sid) {
+  if (is_array($sid)) {
+    if (count($sid) > 100) {
+      return false;
+    }
+    foreach ($sid as $value) {
+      if (!ereg('^[A-Za-z0-9]{1,100}$', $value)) {
+        return false;
+      }
+    }
+  }
+  else {
+    if (!ereg('^[A-Za-z0-9]{1,100}$', $sid)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Internal function: Tries to determine whether the client is a bot or not.
+ */
+function _singlesignon_is_bot() {
+  global $_singlesignon_bot_matches;
+
+  return (
+       preg_match($_singlesignon_bot_matches['useragents_nocase'], $_SERVER['HTTP_USER_AGENT']) 
+    || preg_match($_singlesignon_bot_matches['useragents_case'], $_SERVER['HTTP_USER_AGENT'])
+    || preg_match($_singlesignon_bot_matches['client_IP'], $_SERVER['REMOTE_ADDR'])
+    || preg_match($_singlesignon_bot_matches['target_url'], request_uri())
+  );
+}
+
+/**
+ * 3rd party integration: get master url from Domain Access module.
+ */
+function _singlesignon_get_default_domain() {
+  $domain = domain_default();
+  return $domain['scheme'] .'://'. $domain['subdomain'];
+}
+
+// }}}
+// {{{ other hook functions
+
+/**
+ * Implementation of hook_menu().
+ */
+function singlesignon_menu($maycache) {
+  $items = array(
+    array(
+      'path' => 'admin/settings/singlesignon',
+      'title' => t('Shared Sign-on'),
+      'description' => t('Shares users and sign-ons between sites (previously called "Single Sign-on"'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('singlesignon_admin_settings'),
+      'access' => user_access('access administration pages'),
+      'type' => MENU_NORMAL_ITEM,
+    ),
+  );
+
+  return $items;
+}
+
+/**
+ * Provides user interface necessary to administer this module's settings.
+ */
+function singlesignon_admin_settings() {
+  if (!user_access('access administration pages')) {
+    return drupal_access_denied();
+  }
+
+  $form = array();
+  $use_domain = variable_get('singlesignon_use_domain_module', 0);
+  if (module_exists('domain')) {
+    $form['singlesignon_use_domain_module'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Integrate with Domain module'),
+      '#default_value' => $use_domain,
+      '#description' => t('Synchronizes the master URL with the configured root domain of the <a href="!domain-settings">Domain</a> module.', array('!domain-settings' => url('admin/build/domain'))),
+    );
+  }
+  $master_url = $use_domain ? _singlesignon_get_default_domain() : variable_get('singlesignon_master_url', '');
+  $form['singlesignon_master_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Master URL'),
+    '#default_value' => $master_url,
+    '#description' => t('Enter the URL of your master Shared Sign-On server, in the form of <b>http://www.example.com</b>. Leave the trailing slash off. Do NOT include any path information.'),
+    '#maxlength' => '300',
+    '#size' => '80',
+    '#disabled' => $use_domain,
+  );
+
+  $form['singlesignon_bot_matches'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Bot matches'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#tree' => TRUE,
+    '#description' => <<<EOT
+Single sign-on does not play well with bots (ie. search engines).  
+The data below will hopefully help the single sign-on module to 
+recognise bots and let them through (ie. it plays nicely with the recognised bots).
+EOT
+  );
+  $form['singlesignon_bot_matches']['useragents_case'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Case-sensitive User Agents',
+    '#rows' => 5,
+    '#cols' => 40,
+    '#default_value' => _singlesignon_get_bm_variable('useragents_case'),
+    '#description' => t('A list of case-sensitive strings that might match a referrer.  <b>This is the recommended method</b>'),
+  );
+  $form['singlesignon_bot_matches']['useragents_nocase'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Case-insensitive User Agents',
+    '#rows' => 5,
+    '#cols' => 40,
+    '#default_value' => _singlesignon_get_bm_variable('useragents_nocase'),
+    '#description' => t('A list of case-INsensitive strings that might match a referrer'),
+  );
+  $form['singlesignon_bot_matches']['client_IP'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Client IP',
+    '#rows' => 5,
+    '#cols' => 40,
+    '#default_value' => _singlesignon_get_bm_variable('client_IP'),
+    '#description' => t("A list of IPs that might match the bot's IP"),
+  );
+  $form['singlesignon_bot_matches']['target_url'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Target URL',
+    '#rows' => 5,
+    '#cols' => 40,
+    '#default_value' => _singlesignon_get_bm_variable('target_url'),
+    '#description' => t('A list of case-sensitive strings that might match a referrer.  <b>Not recommended</b> (in general; we have a few specific cases here)'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Internal function for use of singlesignon_admin_settings; turns | separated string into \n separated string.
+ *
+ * @param $variable: The short name of the singlesignon bot matching variable
+ * @param $text: The default text for the variable
+ */
+function _singlesignon_get_bm_variable($variable) {
+  global $_singlesignon_bot_matches;
+
+  return (preg_replace(
+      array("/^\/(.*?)\/i?$/", "/\|/"),
+      array("$1", "\n"),
+      $_singlesignon_bot_matches[$variable]
+    ));
+}
+
+/**
+ * Hook for validating a form; verifies the values for singlesignon bot recognition.
+ */
+function singlesignon_admin_settings_validate($form_id, $form_values, $form) {
+  $s['useragents_case']   = _singlesignon_verify_value($form_values, 'useragents_case');
+  $s['useragents_nocase'] = _singlesignon_verify_value($form_values, 'useragents_nocase', '', 'i');
+  $s['client_IP']        = _singlesignon_verify_value($form_values, 'client_IP', '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}');
+  $s['target_url']       = _singlesignon_verify_value($form_values, 'target_url', '\\\\\/[A-Za-z0-9_\.\*\/\\\\-]*\$$');
+
+  form_set_value($form['singlesignon_bot_matches'], $s);
+}
+
+/**
+ * Internal function: Verifies one singlesignon bot recognition value.
+ *
+ * @param $form_values: The values we're validating
+ * @param $value: The name of the value we're validation
+ * @param $allowed: A regex specifying what values are allowed
+ * @param $extras: The regex parameters (ie. 'i' is case insensitive)
+ */
+function _singlesignon_verify_value($form_values, $value, $allowed = '', $extras = '') {
+  if ($allowed == '') {
+    $allowed = '[A-Za-z0-9_\.]*';
+  }
+  if ($form_values['singlesignon_bot_matches'][$value] != '') {
+    $vals = explode("\n", $form_values['singlesignon_bot_matches'][$value]);
+    foreach ($vals as $val) {
+      $val = preg_replace("/^\s*(.*?)\s*$/", "$1", $val);
+      if (preg_match("/^$allowed$/", $val)) {
+        $rvals[] = $val;
+      }
+      else {
+        form_set_error('', t("The strings in $value contain non-word characters (we allow $allowed at the moment, and '". $val ."' is a problem)"));
+      }
+    }
+    return ('/'. join('|', $rvals) ."/$extras");
+  }
+  return ($form_values['singlesignon_bot_matches'][$value]);
+}
+
+// }}}
+

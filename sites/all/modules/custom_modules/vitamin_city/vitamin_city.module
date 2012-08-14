@@ -1,0 +1,1403 @@
+<?php
+/**
+ * @file
+ * vitamin_city module
+ */
+define('VITAMIN_TITLE', 'Vitamin Daily');
+
+function vitamin_city_perm() {
+  $retVal = array('administer black book');
+  return $retVal;
+}
+
+function vitamin_city_menu($mayCache) {
+  if ($mayCache) {
+//    $city = vitamin_city_current_city();
+//    if ($city != null) {
+//      i18n_get_lang($city->field_language[0]['value']);
+//      global $locale;
+//      $locale = $city->field_language[0]['value'];
+//    }
+    $items[] = array(
+      'path' => 'update_blog',
+      'title' => t("EDITORS' DIARY"),
+      'callback' => 'vitamin_city_update_blog',
+      'access' => user_access('administer black book'),
+      'type' => MENU_CALLBACK
+    );
+    $items[] = array(
+      'path' => 'update_letters',
+      'title' => t("EDITORS' DIARY"),
+      'callback' => 'vitamin_city_update_letters',
+      'access' => user_access('administer black book'),
+      'type' => MENU_CALLBACK
+    );
+    $items[] = array(
+      'path' => 'referral',
+      'title' => VITAMIN_TITLE,
+      'callback' => 'vitamin_city_referral',
+      'access' => true,
+      'type' => MENU_CALLBACK
+    );
+    $items[] = array(
+      'path' => 'promo',
+      'title' => VITAMIN_TITLE,
+      'callback' => 'vitamin_city_promo',
+      'access' => true,
+      'type' => MENU_CALLBACK
+    );
+    $items[] = array(
+      'path' => 'landing',
+      'title' => VITAMIN_TITLE,
+      'callback' => 'vitamin_city_root_landing_page',
+      'access' => true,
+      'type' => MENU_CALLBACK
+    );
+    $items[] = array(  //editorial only
+      'path' => 'home',
+      'title' => VITAMIN_TITLE,
+      'callback' => 'vitamin_city_test_landing_page',
+      'callback arguments' => array(true),
+      'access' => true,
+      'type' => MENU_CALLBACK
+    );
+    $items[] = array(  //editorial only
+      'path' => 'home_fr',
+      'title' => VITAMIN_TITLE,
+      'callback' => 'vitamin_city_test_landing_page',
+      'callback arguments' => array(false),
+      'access' => true,
+      'type' => MENU_CALLBACK
+    );
+    $items[] = array('path' => 'vitamin_search',
+      'weight' => -10,
+      'title' => t('Search'),
+      'callback' => 'vitamin_city_searchme',
+      'access' => user_access('search content'),
+      'type' => MENU_SUGGESTED_ITEM);
+    $items[] = array('path' => 'searchall',
+      'weight' => -10,
+      'title' => t('Search'),
+      'callback' => 'vitamin_city_search_all',
+      'access' => user_access('search content'),
+      'type' => MENU_SUGGESTED_ITEM);
+  } else {
+    $items[] = array('path' => 'searchcity',
+      'weight' => -10,
+      'title' => t('Search'),
+      'callback' => 'vitamin_city_search_city',
+      'callback arguments' => array(node_load($_GET['city'])),
+      'access' => user_access('search content'),
+      'type' => MENU_SUGGESTED_ITEM);    
+    if (arg(0) == 'forum') {
+      vitamin_city_set_forum(arg(1));
+      $found = true;
+    } else if (arg(0) == 'node') {
+      $node = node_load(arg(1));
+      if ($node->type == 'forum') {
+        $taxonomy = array_shift($node->taxonomy);
+        vitamin_city_set_forum($taxonomy->tid);
+        $found = true;
+      }
+    }
+    //thickbox
+ //   if (arg(0) != 'landing') {  // handle after redirect
+    if (arg(0) != 'sites') {
+      if (empty($_COOKIE['referral'])) {
+        $js = "$(document).ready(function() {";
+        $js .= "tb_show('Site Update','/referral/%s?KeepThis=true&TB_iframe=true&height=250&width=400', null);";
+        $js .= "});";
+        
+        if ($_GET['ref'] == 'v') {
+          $city = node_load(array('title' => 'Vancouver', 'type'=>'city'));
+          setcookie('vitamin_city', $city->nid, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+          $_COOKIE['vitamin_city'] = $city->nid; // for this request
+          if (arg(0) != 'landing') {
+            setcookie('referral', true, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+            $js = sprintf($js, 'v');
+            drupal_add_js($js, 'inline');
+          }
+        } else if ($_GET['ref'] == 'm') {
+          $city = node_load(array('title' => 'Montreal', 'type'=>'city'));
+          setcookie('vitamin_city', $city->nid, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+          $_COOKIE['vitamin_city'] = $city->nid; // for this request
+          if (arg(0) != 'landing') {
+            setcookie('referral', true, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+            $js = sprintf($js, 'm');
+            drupal_add_js($js, 'inline');
+          }
+        } else if ($_GET['ref'] == 't') {
+          $city = node_load(array('title' => 'Toronto', 'type'=>'city'));
+          setcookie('vitamin_city', $city->nid, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+          $_COOKIE['vitamin_city'] = $city->nid; // for this request
+          if (arg(0) != 'landing') {
+            setcookie('referral', true, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+            $js = sprintf($js, 't');
+            drupal_add_js($js, 'inline');
+          }
+        }
+      }
+ //   }
+    
+    $cities = vitamin_city_get_cities();
+    if (!empty($cities)) {
+      foreach($cities as $city) {
+        if (arg(0) == $city->field_city_url_path[0]['value']) {
+//          $language = _i18n_get_lang();
+//          if ($language != $city->field_language[0]['value']) {
+//            global $i18n_langpath;
+//            drupal_goto($city->field_language[0]['value'] . '/' . $_REQUEST['q']);      
+//            $i18n_langpath = $city->field_language[0]['value'];
+//          }
+          i18n_get_lang($city->field_language[0]['value']);
+          global $locale;
+          $locale = $city->field_language[0]['value'];          
+          $found = true;
+          $oldcity = vitamin_city_current_city();
+          if (empty($oldcity) || ($oldcity->nid != $city->nid)) {
+            setcookie('vitamin_city', $city->nid, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+            $_REQUEST['vitamin_city'] = $city->nid; // for this request
+//            error_log("SETTING CITY TO {$city->nid}");
+          }
+          if ($city->field_css_file[0]['value']) {
+            $path = path_to_theme() . '/' . $city->field_css_file[0]['value'];
+            drupal_add_css($path);
+          }            
+//          drupal_add_feed("http://stage.dailydose.ca/vancouver/rss.xml", "Daily Dose - Vancouver");
+
+          $items[] = array(  // declaration for dd_archive module 
+            'path' => $city->field_city_url_path[0]['value'] . '/archive',
+            'title'    => t($city->title) . ' ' . t('Archives'),
+            'access'   => user_access('access content'),
+            'callback' => 'dd_archive_city_page',
+            'callback arguments' => array($city),
+            'type' => MENU_CALLBACK
+          );
+
+          
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'],
+//            'title' => 'Daily Dose - ' . $city->title,
+            'callback' => 'vitamin_city_landing_page',
+            'callback arguments' => array($city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/top10',
+            //'title' => $city->title,
+            'callback' => 'vitamin_city_top_ten',
+            'callback arguments' => array($city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/tag',
+            //'title' => $city->title,
+            'callback' => 'vitamin_city_tag',
+            'callback arguments' => array($city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/search',
+            //'title' => $city->title,
+            'callback' => 'vitamin_city_search_city',
+            'callback arguments' => array($city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/editors-blog',
+ //           'title' => $city->title . " - EDITOR'S BLOG",
+            'callback' => 'vitamin_city_blog_page',
+            'callback arguments' => array($city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/love-letters',
+            'title' => t($city->title) . " - " . t('LOVE LETTERS'),
+            'callback' => 'vitamin_city_love_letters',
+            'callback arguments' => array($city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/steals-and-deals',
+//            'title' => $city->title . " - STEALS AND DEALS",
+            'callback' => 'vitamin_city_build_view_page',
+            'callback arguments' => array('steals_and_deals', $city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/steals-and-deals-kids',
+//            'title' => $city->title . " - STEALS AND DEALS",
+            'callback' => 'vitamin_city_build_view_page',
+            'callback arguments' => array('steals_and_deals_kids', $city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/rss.xml',
+            //'title' => $city->title,
+            'callback' => 'vitamin_city_rss',
+            'callback arguments' => array($city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/editors-blog/rss.xml',
+            //'title' => $city->title,
+            'callback' => 'vitamin_city_blog_rss',
+            'callback arguments' => array($city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $items[] = array(
+            'path' => $city->field_city_url_path[0]['value'] . '/love-letters/rss.xml',
+            //'title' => $city->title,
+            'callback' => 'vitamin_city_letters_rss',
+            'callback arguments' => array($city),
+            'access' => true,
+            'type' => MENU_CALLBACK
+          );
+          $topics = taxonomy_get_tree(3, 0, -1, 1);
+          foreach($topics as $topic) {
+            $path = vitamin_city_topic_path($topic->name);
+            $items[] = array(
+              'path' => $city->field_city_url_path[0]['value'] . '/' . $path,
+              'title' => t($topic->name),
+              'callback' => 'vitamin_city_topic_page',
+              'callback arguments' => array($city, $topic),
+              'access' => true,
+              'type' => MENU_CALLBACK
+            );
+            $items[] = array(
+              'path' => $city->field_city_url_path[0]['value'] . '/' . $path . '/rss.xml',
+              //'title' => $city->title,
+              'callback' => 'vitamin_city_rss',
+              'callback arguments' => array($city, $topic),
+              'access' => true,
+              'type' => MENU_CALLBACK
+            );
+          }
+          
+          $categories = taxonomy_get_tree(11, 0, -1, 1);  // little black book
+          foreach($categories as $category) {
+            $name = strtolower($category->name);
+            $name = str_replace(' & ', '_', $name);
+            $items[] = array(
+              'path' => $city->field_city_url_path[0]['value'] . '/' . 'lbb/' . $name,
+//              'title' => "Little Black Book - " . ,
+              'callback' => 'vitamin_city_llb_page',
+              'callback arguments' => array($city, $category),
+              'access' => true,
+              'type' => MENU_CALLBACK
+            );
+          }
+          
+        }
+      }
+    }
+    if (!$found) {
+      $city = vitamin_city_current_city();
+//      $test = arg(0);
+      if ($city == null && arg(0) != 'landing') {
+        if (arg(0) == 'node' && is_numeric(arg(1))) {
+          $terms = taxonomy_node_get_terms_by_vocabulary(arg(1), 2);
+          $term = array_shift($terms);
+          $cities = vitamin_city_get_cities();
+          foreach ($cities as $testCity) {
+            if ($testCity->field_taxonomy_id[0]['value'] == $term->tid) {
+              $city = $testCity;
+              break;
+            }
+          }
+        } else {
+          $city = node_load(array('title' => 'Vancouver', 'type'=>'city'));          
+        }
+        setcookie('vitamin_city', $city->nid, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+        $_REQUEST['vitamin_city'] = $city->nid; // for this request
+      }
+      i18n_get_lang($city->field_language[0]['value']);
+      global $locale;
+      $locale = $city->field_language[0]['value'];          
+      if ($city->field_css_file[0]['value']) {
+        $path = path_to_theme() . '/' . $city->field_css_file[0]['value'];
+        drupal_add_css($path);
+      }      
+    }
+//    if (arg(0) == 'wall-post') {
+//      $nid = arg(1);
+//      if (is_numeric($nid)) {
+//        $items[] = array(
+//          'path' => "wall-post/$nid",
+//          'title' => t('Post to Wall'),
+//          'callback' => 'hockeywall_posting_form',
+//          'access' => true,
+//          'type' => MENU_CALLBACK
+//        );          
+//      }
+//    }
+    }
+  }
+  return $items;
+}
+
+function vitamin_city_set_forum($tid) {
+  $parents = taxonomy_get_parents($tid);
+  if (!empty($parents)) {
+    $parent = array_shift($parents);
+    $tid = $parent->tid;
+  }
+  $result = db_query("select nid from content_type_city where field_forum_id_value=%d", $tid);
+  if ($row = db_fetch_array($result)) {
+    $city = node_load($row['nid']);
+    i18n_get_lang($city->field_language[0]['value']);
+    global $locale;
+    $locale = $city->field_language[0]['value'];
+    setcookie('vitamin_city', $city->nid, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+    $_REQUEST['vitamin_city'] = $city->nid; // for this request
+    if ($city->field_css_file[0]['value']) {
+      $path = path_to_theme() . '/' . $city->field_css_file[0]['value'];
+      drupal_add_css($path);
+    }      
+  }  
+	else if ($city = vitamin_city_current_city()) {
+     $path = path_to_theme() . '/' . $city->field_css_file[0]['value'];
+     drupal_add_css($path);
+	}
+	else {
+     $path = path_to_theme() . '/vancouver.css';
+     drupal_add_css($path);
+	}
+
+}
+
+function vitamin_city_update_blog() {
+  $result = db_query('select node.nid from node, term_node where node.nid=term_node.nid and term_node.tid=292'); // Editors blog
+  while ($node = db_fetch_object($result)) {
+    $insert = 'insert into term_node (nid, tid) values (%d, %d)';
+    print $insert . ' ' . $node->nid;
+    db_query($insert, $node->nid, 1);
+    db_query($insert, $node->nid, 2);
+    db_query($insert, $node->nid, 3);
+  }
+  return $properties;
+}
+
+function vitamin_city_update_letters() {
+  $result = db_query('select node.nid from node, term_node where node.nid=term_node.nid and term_node.tid=121'); // Love Letters Blog
+  while ($node = db_fetch_object($result)) {
+    $insert = 'insert into term_node (nid, tid) values (%d, %d)';
+    print $insert . ' ' . $node->nid;
+    db_query($insert, $node->nid, 1);
+    db_query($insert, $node->nid, 2);
+    db_query($insert, $node->nid, 3);
+  }
+  return $properties;
+}
+
+function vitamin_city_forum_block() {
+  $city = vitamin_city_current_city();
+  $forums = forum_get_forums($city->field_forum_id[0]['value']);
+
+  // NOTE: until we have more than forum per city
+  //$output = "<h2>" . l($city->title . ' ' . t('Forum'), "forum/{$city->field_forum_id[0]['value']}") . "</h2>";
+  $keys = array_keys($forums);
+  $output = "<h2>" . l($city->title . ' ' . t('Forum'), "forum/{$keys[0]}") . "</h2>";
+  
+  $output .= "<ul>";
+  foreach ($forums as $forum) {
+ //   $name = str_replace('A', 'a', ucwords(strtolower($forum->name)));
+    $output .= "<li>" . l(t($forum->name), "forum/{$forum->tid}") . "</li>";
+  }
+  $output .= "</ul>";
+  return $output;
+}
+
+function vitamin_city_top_ten_block() {
+  $city = vitamin_city_current_city();
+  print l(t("Today's top 10"), $city->field_city_url_path[0]['value'] .'/top10', array('id' => 'top10'));  
+}
+
+function vitamin_city_hot_topics() {
+  $city = vitamin_city_current_city();
+  $output = '<ul>';
+  $topics = taxonomy_get_tree(3, 0, -1, 1);
+  foreach($topics as $topic) {
+    $path = vitamin_city_topic_path($topic->name);
+    $output .= '<li>'. l(t($topic->name), $city->field_city_url_path[0]['value'] . '/' . $path) .'</li>';
+  }
+  $output .= '</ul>';
+  print $output;
+}
+
+function vitamin_city_overheard_forum_block() {
+  $city = vitamin_city_current_city();
+  $view = views_get_view('overheard');
+  $items = views_build_view('items', $view, array(0 => $city->field_taxonomy_id[0]['value']), false, 1);
+  if (!empty($items['items'])) {
+    $item = array_shift($items['items']);
+    $item = node_load($item->nid);
+    $retVal = '<div class="view-header view-header-overheard"><h2 class="title overheard">OVERHEARD IN THE FORUM:</h2></div>';
+    $retVal .= '<div class="view-content view-content-overheard"><div class="item-list"><ul><li><div class="view-item view-item-overheard"><div class="view-field view-data-node-title">';
+    $retVal .= l($item->field_link[0]['title'], $item->field_link[0]['url']);
+    $retVal .= '</div></div></li></ul></div></div>';
+  }
+  return $retVal;
+}
+
+function vitamin_city_steals_and_deals_block() {
+  $city = vitamin_city_current_city();
+  $output = l(t('Steals and Deals'), $city->field_city_url_path[0]['value'] . '/' . 'steals-and-deals', array('class'=>'steals'));
+  return $output;
+}
+
+function vitamin_city_steals_and_deals_kids_block() {
+  $city = vitamin_city_current_city();
+  $output = l(t('Steals and Deals Kids'), $city->field_city_url_path[0]['value'] . '/' . 'steals-and-deals-kids', array('class'=>'stealskids'));
+  return $output;
+}
+
+function vitamin_city_test_landing_page($english) {
+  if ($english) {
+    global $locale;
+    $locale = 'en';
+    i18n_get_lang('en');
+    googleanalytics_footer();
+    setcookie('vitamin_city', 3330, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+    $_COOKIE['vitamin_city'] = $city->nid; // for this request
+//    db_query("delete from cache_menu");
+    $path = 'landing.tpl.php';      
+  } else {
+    global $locale;
+    $locale = 'fr';
+    i18n_get_lang('fr'); //2766
+    setcookie('vitamin_city', 3333, time() + 60 * 60 * 24 * 365, '/'); //for future requests    
+    $_COOKIE['vitamin_city'] = $city->nid; // for this request
+    googleanalytics_footer();
+//    db_query("delete from cache_menu");
+    $path = 'landing_fr.tpl.php';
+  }
+  $retVal = vitamin_city_render($path);
+//  $retVal .= "<h2>HELLO WORLD</h2>";
+  print $retVal;
+}
+
+function vitamin_city_root_landing_page() {
+//  unset($_COOKIE['vitamin_city']);  
+//  setcookie('vitamin_city', null); //for future requests
+  $city = vitamin_city_current_city();
+  if ($city) {
+    $ref = null;
+    if ($_GET['ref']) {
+      $ref = 'ref=' . $_GET['ref'];  
+    }
+    drupal_goto($city->field_city_url_path[0]['value'], $ref);      
+  } else {
+    if (preg_match('/vitaminedujour.com$/', $_SERVER['HTTP_HOST'])) {
+      setcookie('vitamin_city', 3333, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+ //     $_COOKIE['vitamin_city'] = $city->nid; // for this request
+      global $locale;
+      $locale = 'fr';
+      i18n_get_lang('fr');
+      googleanalytics_footer();
+      $path = 'landing_fr.tpl.php';      
+    } else {
+      setcookie('vitamin_city', 3330, time() + 60 * 60 * 24 * 365, '/'); //for future requests    
+      global $locale;
+      $locale = 'en';
+      i18n_get_lang('en');
+      googleanalytics_footer();
+      $path = 'landing.tpl.php';      
+    }
+    print vitamin_city_render($path);    
+  }
+}
+
+function vitamin_city_referral() {
+  $path = 'referral.tpl.php';
+  print vitamin_city_render($path);    
+}
+
+function vitamin_city_llb_page($city, $category) {
+  $properties['category'] = $category;
+  $path = 'llb_header.tpl.php';
+  $header = vitamin_city_render($path, $properties);    
+
+  $categories = taxonomy_get_tree(11, $category->tid, -1, 1);
+  foreach($categories as $subcategory) {
+    $body .= "<div class='lbb_subsection'><h3 class='lbb_subtitle'>" . t($subcategory->name) . "</h3>";
+    $view = views_get_view('lbb_category');
+    $body .= views_build_view('page', $view, array(0=>$subcategory->tid . ',' . $city->field_taxonomy_id[0]['value']), true, 10);    
+    
+    /*
+    <div class="back-to-top"><a href="#top">Back to top</a></div>
+</div> <!-- end of lbb_subsection -->    
+    */
+    $body .= "<div class='back-to-top'><a href='#top'>" . t('Back to top') . "</a></div></div>";
+  }
+  $top = "<a name='top'></a><div id='lbb_body'>";
+  $bottom = '</div></div>';
+  drupal_set_title(t($city->title) . ' - ' . t('Little Black Book'));  
+  return $top . $header . $body . $bottom; 
+}
+
+function vitamin_city_blog_page($city) {
+  $view = views_get_view('Editors_Blog');
+  $retVal = views_build_view('page', $view, array(0 => $city->field_taxonomy_id[0]['value']), true, 10);
+  drupal_set_title(t($city->title) . " - " . t("Editors' Diary"));  
+  drupal_add_feed("http://{$_SERVER["HTTP_HOST"]}/{$city->field_city_url_path[0]['value']}/editors-blog/rss.xml", VITAMIN_TITLE . t($city->title) . " " . t("Editors' Blog"));
+  return $retVal;
+}
+
+function vitamin_city_love_letters($city) {
+  drupal_add_feed("http://{$_SERVER["HTTP_HOST"]}/{$city->field_city_url_path[0]['value']}/love-letters/rss.xml", VITAMIN_TITLE . t($city->title) . " " . t("Love Letters"));
+  $view = views_get_view('love_letters');
+  $retVal = '<p class="intro">' . t("Share the love! Read what our subscribers have to say, or") . ' ' . l(t('send us a note'), 'contact', array(), drupal_get_destination()) . "</p>";
+  $retVal .= views_build_view('page', $view, array(0 => $city->field_taxonomy_id[0]['value']), true, 10);    
+  drupal_set_title(t($city->title) . ' - ' . t("Love Letters"));
+  return $retVal;
+}
+
+function vitamin_city_topic_path($topic_name) {
+  return strtolower(str_replace(' & ', '-', $topic_name));
+}
+
+function vitamin_city_topic_page($city, $topic) {
+//  setcookie('vitamin_city', $city->nid, time() + 60 * 60 * 24 * 365);
+  $_REQUEST['topic'] = $topic;
+//  $term = taxonomy_get_term($topic);
+  $path = vitamin_city_topic_path($topic->name);
+//  error_log("DRUPAL_ADD_FEED " . "http://{$_SERVER["HTTP_HOST"]}/{$city->field_city_url_path[0]['value']}/$path/rss.xml", "Daily Dose - {$city->title} - {$term->name}");
+  drupal_add_feed("http://{$_SERVER["HTTP_HOST"]}/{$city->field_city_url_path[0]['value']}/$path/rss.xml", VITAMIN_TITLE . t($city->title) . " " . t($topic->name));
+  $view = views_get_view('taxonomy_term');
+  $retVal = views_build_view('page', $view, array(0 => $city->field_taxonomy_id[0]['value'] . ',' . $topic->tid), true, 10);  
+  drupal_set_title(t($city->title) . ' - ' . t($topic->name));  
+  return $retVal;
+}
+
+function vitamin_city_build_view_page($viewname,$city) {
+  $view = views_get_view($viewname);
+  return views_build_view('page', $view, array(0 => $city->field_taxonomy_id[0]['value']), false, 1);  
+}
+
+function vitamin_city_steals_and_deals($city) {
+  $view = views_get_view('steals_and_deals');
+  return views_build_view('page', $view, array(0 => $city->field_taxonomy_id[0]['value']), false, 1);  
+}
+
+function vitamin_city_top_ten($city) {
+  $path = 'topten_header.tpl.php';
+  $header = vitamin_city_render($path);    
+  $view = views_get_view('top10');
+  $body = views_build_view('page', $view, array(0 => $city->field_taxonomy_id[0]['value']), false, 10);
+  drupal_set_title(t($city->title) . ' - ' . t("Today's Top Ten"));  
+  return $header . $body;
+}
+
+function vitamin_city_render($file, $properties=array()) {
+  $path = path_to_theme() . '/' . $file;
+  if (file_exists($path)) {
+    if ($properties) {
+      extract($properties, EXTR_SKIP);  // Extract the variables to a local namespace
+    }
+    ob_start();                      // Start output buffering
+    include $path;
+    $retVal .= ob_get_contents();   // Get the contents of the buffer
+    ob_end_clean();                  // End buffering and discard
+  } else {
+    $retVal .= "COULD NOT FIND TEMPLATE " . $path;
+  }
+  return $retVal;  
+}
+
+function vitamin_city_tag($city) {
+  $tag_id = arg(2);
+  $header = vitamin_city_render('tag_header.tpl.php');
+  $view = views_get_view('Taxonomy');
+  $body = views_build_view('page', $view, array(0 => $city->field_taxonomy_id[0]['value'] . ',' . $tag_id), true, 10);
+  drupal_set_title(t($city->title));  
+  return $header . $body;
+}
+
+function vitamin_city_searchme() {
+  $city = node_load($_GET['city']);
+  drupal_goto($city->field_city_url_path[0]['value'] . '/search', 'filter0='. $_GET['filter0']);
+}
+
+function vitamin_city_search_city($city) {
+  $view = views_get_view('views_fastsearch');
+  $viewdata = views_build_view('result', $view, array(0 => $city->field_taxonomy_id[0]['value']));
+  $num = db_num_rows($viewdata['result']);  
+  $body = views_build_view('page', $view, array(0 => $city->field_taxonomy_id[0]['value']), true, 10);
+  drupal_set_title(t('Search') . ' ' . t($city->title));
+  $header = vitamin_city_render('search_header.tpl.php', array('num'=>$num));
+  return $header . $body;
+}
+
+function vitamin_city_search_all() {
+  $view = views_get_view('global_search');
+  $viewdata = views_build_view('result', $view);
+  $num = db_num_rows($viewdata['result']);  
+  $body = views_build_view('page', $view, array(), true, 10);
+//  drupal_set_title(t('Search') . ' ' . t($city->title));
+  $header = vitamin_city_render('search_header.tpl.php', array('num'=>$num));
+  return $header . $body;
+}
+
+function vitamin_city_rss($city, $topic = null) {
+  $view = views_get_view('dose_rss');
+  if ($topic) {
+    print views_build_view('page', $view, array(1 => $city->field_taxonomy_id[0]['value'] . ',' . $topic->tid), false, 10);      
+  } else {
+    print views_build_view('page', $view, array(1 => $city->field_taxonomy_id[0]['value']), false, 10);      
+  }
+}
+
+function vitamin_city_blog_rss($city) {
+  $view = views_get_view('blog_rss');
+  print views_build_view('page', $view, array(1 => $city->field_taxonomy_id[0]['value']), false, 10);      
+}
+
+function vitamin_city_letters_rss($city) {
+  $view = views_get_view('letters_rss');
+  print views_build_view('page', $view, array(1 => $city->field_taxonomy_id[0]['value']), false, 10);      
+}
+
+function vitamin_city_rss_link() {
+  $city = vitamin_city_current_city();
+  $topic = $_REQUEST['topic'];
+  if ($topic) {
+    $path = vitamin_city_topic_path($topic->name);
+    return l(t('Rss feed'), $city->field_city_url_path[0]['value']. '/' . $path . '/rss.xml');    
+  } else if (arg(1) == 'editors-blog') {
+    return l(t('Rss feed'), $city->field_city_url_path[0]['value']. '/editors-blog/rss.xml');    
+  } else if (arg(1) == 'love-letters') {
+    return l(t('Rss feed'), $city->field_city_url_path[0]['value']. '/love-letters/rss.xml');    
+  } else {
+    return l(t('Rss feed'), $city->field_city_url_path[0]['value'] . '/rss.xml');    
+  }
+}
+
+/* city homepage ads are sold at a premium over "run of site" (ros) ads 
+ * this account for the plethora of ads below
+ */
+function vitamin_city_display_ad($adname) {
+  $city = vitamin_city_current_city();
+  $citypattern = '/^\/' . $city->field_city_url_path[0]['value'] . '$/';
+  $cityhomepage = 0;
+  if (preg_match($citypattern, $_SERVER['REQUEST_URI'])) {
+    $cityhomepage = 1;
+  }
+	print '<div class="' . $adname . '">';
+  switch ($adname) {
+    case "ad_top_160x600":
+      print $cityhomepage ? $city->field_ad_top_160x600_home[0][value] 
+                          : $city->field_ad_top_160x600_ros[0][value];
+      break;
+    case "ad_middle_160x600":
+      print $city->field_ad_middle_160x600[0][value];
+      break;
+    case "ad_inline_300x250_home":
+      print $city->field_ad_inline_300x250_home[0][value];
+      break;
+    case "ad_inline_300x250_ros":
+      print $city->field_ad_inline_300x250_ros[0][value];
+      break;
+    case "ad_inline_300x250_blog":
+      print $city->field_ad_inline_300x250_blog[0][value];
+      break;
+    case "ad_newsletter_160x600":
+      print $city->field_ad_newsletter_160x600[0][value];
+      break;
+    default:
+      print $city->field_ad_top_160x600[0][value];
+  }
+	print "</div>";
+}
+
+function vitamin_city_current_city() {
+  $nid = $_REQUEST['vitamin_city'];
+  if (!$nid) {
+    $nid = $_COOKIE['vitamin_city'];
+  }
+  if ($nid) {
+    $city = node_load($nid);
+  } else {
+    //default city
+  }
+  // error_log("CURRENT CITY IS {$city->nid}");  
+  return $city;
+}
+
+function vitamin_city_title() {
+  $city = vitamin_city_current_city();
+  return t($city->title) . ' ' . t('Edition');
+}
+
+function vitamin_city_landing_page($city) {
+  $view = views_get_view('dose');
+  $retVal = views_build_view('block', $view, array(0 => $city->field_taxonomy_id[0]['value']), false, 5);
+  drupal_add_feed("http://{$_SERVER["HTTP_HOST"]}/{$city->field_city_url_path[0]['value']}/rss.xml", VITAMIN_TITLE . t($city->title));
+  drupal_set_title(t($city->title));
+  return $retVal;
+}
+
+function vitamin_city_nodeapi(&$node, $op) {
+  if ($node->type == 'city') {
+    if ($op == 'insert') {
+    } else if ($op == 'submit') {
+      $taxonomy_id = $node->field_taxonomy_id[0]['value'];
+      if (empty($taxonomy_id)) {
+	$term_values['name'] = $node->title;
+	$term_values['weight'] = $node->field_city_weight[0]['value'];
+	$term_values['vid'] = 2;
+	taxonomy_save_term($term_values);
+	$node->field_taxonomy_id[0]['value'] = $term_values['tid'];
+      }
+      $forum_id = $node->field_forum_id[0]['value'];
+      if (empty($forum_id)) {
+	$form_values['name'] = strtoupper($node->title);
+	$form_values['weight'] = $node->field_city_weight[0]['value'];
+	$form_values['parent'][0] = '0';
+	$form_values['vid'] = 4;
+	vitamin_city_add_forum($form_values);
+	$node->field_forum_id[0]['value'] = $form_values['tid'];
+      }
+    } else if ($op == 'delete') {
+//      $taxonomy_id = $node->field_taxonomy_id[0]['value'];
+//      if (!empty($taxonomy_id)) {
+//        taxonomy_del_term($taxonomy_id);
+//      }      
+    }
+//  } else if ($node->type == 'daily_dose') {
+//    if ($op == 'load') {
+//      drupal_set_title(t($node->title));        
+//    }
+  }
+}
+
+function vitamin_city_add_forum(&$form_values) {
+  $container = TRUE;
+//  $type = 'forum container';
+  $status = taxonomy_save_term($form_values);
+  switch ($status) {
+    case SAVED_NEW:
+      $containers = variable_get('forum_containers', array());
+      $containers[] = $form_values['tid'];
+      variable_set('forum_containers', $containers);
+      break;
+  }
+  $type = t('forum');
+  $child_values['name'] = 'GET A TIP / POST A TIP';
+  $child_values['description'] = 'Need info from those in-the-know? Chat about whatÕs hot in your city with our savvy subscribers here.';
+  $child_values['weight'] = '0';
+  $child_values['parent'][0] = $form_values['tid'];
+  $child_values['vid'] = 4;
+  $status = taxonomy_save_term($child_values);
+}
+
+function vitamin_city_header() {
+ $city = vitamin_city_current_city();
+ if ($city->field_language[0]['value'] == 'fr') {
+  $alt = 'Vitamine du jour';
+ } else {
+  $alt = 'Vitamin Daily';
+ }
+ $image = theme('imagefield_image', $city->field_header_image[0], $alt);
+ return "<a style='float:left' id='dailydoselogo' href='/{$city->field_city_url_path[0]['value']}'>$image</a>";
+}
+
+function vitamin_city_get_cities() {
+  $result = db_query("SELECT n.nid FROM {node} n, {content_type_city} c WHERE n.status = 1 AND n.nid=c.nid AND n.type='city' order by c.field_city_weight_value asc");
+  while ($row = db_fetch_array($result)) {
+    $retVal[] = node_load($row['nid']);
+  }
+  return $retVal;  
+}
+
+function vitamin_city_select() {
+//  $current_city = vitamin_city_current_city();
+  $cities = vitamin_city_get_cities();
+  $retVal = '<form id="nav" action="#">';
+  $retVal .= '<select name="SelectURL" onchange="document.location.href = document.forms[\'nav\'].SelectURL.options[document.forms[\'nav\'].SelectURL.selectedIndex].value; return false;" style="">';
+  $retVal .= '<option value="#" selected="selected">' . t('Change city') . '</option>';
+  foreach($cities as $city) {
+//    if($city->nid != $current_city->nid) {
+    if ($city->field_select_label[0]['value']) {
+      $cityTitle = strtoupper($city->field_select_label[0]['value']);
+    } else {
+      $cityTitle = strtoupper($city->title);      
+    }
+//    $language_path = $city->field_language[0]['value'];
+//    if ($language_path) $language_path = $language_path . '/';
+    $retVal .= '<option value="/'. $city->field_city_url_path[0]['value'] .'">'. $cityTitle .'</option>';
+//    } else {
+//      $retVal .= '<option value="/">'. strtoupper($city->title) .'</option>';
+//    }
+  }
+  $retVal .= '</select>';
+  $retVal .= '</form>';
+  return $retVal;
+}
+
+function vitamin_city_banner_path($parent_directory) {
+  //on a node
+  if(arg(0) == 'node' && is_numeric(arg(1)) && arg(1) != 892) {
+    $nid = arg(1);
+  } else if (arg(1) == 'term') {
+    $tid = arg(2);
+    $taxo = taxonomy_get_term($tid);
+    $d = explode(' ', $taxo->name);
+    $directory = strtolower($d[0]);    
+  } else {
+    $city = vitamin_city_current_city();
+    $view = views_get_view('dose');
+    $result = views_build_view('items', $view, array(0 => $city->field_taxonomy_id[0]['value']), false, 1);
+    if ($result['items']) {
+      $nid = $result['items'][0]->nid;
+    }
+  }
+  if ($nid) {
+    $taxos = taxonomy_node_get_terms_by_vocabulary($nid, 3);
+    if ($taxos) {
+      foreach($taxos as $taxo) {
+        $d = explode(' ', $taxo->name);
+        $directory = strtolower($d[0]);
+        break;
+      }
+    }
+  }
+  // on the home page
+  /*
+  elseif(arg(0) == 'node' || (arg(0) == 'node' && arg(1) == 892)) {
+  
+    if(strtolower($_SERVER['HTTP_HOST']) == 'vitamint.ca') {
+      $city = 'toronto';
+    }
+    elseif(strtolower($_SERVER['HTTP_HOST']) == 'vitaminm.ca') {
+      $city = 'montreal';
+    }
+    else {
+      $city = 'vancouver';
+    }
+  
+    $result = db_result(db_query('
+    SELECT DISTINCT n.nid
+    FROM {node} n, {term_node} tn, {term_data} td
+    WHERE n.nid = tn.nid
+    AND tn.tid = td.tid
+    AND td.name = "%s"
+    AND n.status = %d
+    AND n.type = "%s"
+    ORDER BY n.created DESC
+    LIMIT 1', $city, 1, 'daily_dose'));
+  
+    $terms = taxonomy_node_get_terms($result);
+    foreach($terms as $term) {
+      if($term->vid == 3) {
+        $t = explode(' ', $term->name);
+        $directory = strtolower($t[0]);
+      }
+    }
+  }
+  // on a view
+  else {
+    $cats = array(
+              'health-beauty' => 'HEALTH & BEAUTY',
+              'fashion-shopping' => 'FASHION & SHOPPING',
+              'home-decor' => 'HOME & DECOR',
+              'arts-culture' => 'ARTS & CULTURE',
+              'travel-leisure' => 'TRAVEL & LEISURE',
+              'dining-nightlife' => 'DINING & NIGHTLIFE',
+              'moms-kids' => 'MOMS & KIDS',
+            );
+    foreach($cats as $k => $v) {
+      if($k == arg(1)) {
+        $view = $v;
+        break;
+      }
+    }
+  
+    if($view) {
+      $result = db_result(db_query('
+        SELECT n.nid
+        FROM node n
+        JOIN term_node tn
+        ON n.nid = tn.nid
+        JOIN term_node tnn
+        ON  n.nid = tnn.nid
+        JOIN term_data td
+        ON  tn.tid = td.tid
+        JOIN term_data tdd
+        ON  tnn.tid = tdd.tid
+        WHERE td.name LIKE "%s"
+        AND tdd.name LIKE "%s"
+        AND n.status = %d
+        AND n.type = "%s"
+        ORDER BY n.created DESC
+        limit 1', arg(0), $view, 1, 'daily_dose'));
+  
+      if($result) {
+        $terms = taxonomy_node_get_terms($result);
+        foreach($terms as $term) {
+          if($term->vid == 3) {
+            $t = explode(' ', $term->name);
+            $directory = strtolower($t[0]);
+          }
+        }
+      }
+    }
+  }
+*/
+  /*	the line below is the original - it concatenates a path for the images*/
+  /* $path = base_path() . path_to_theme() .'/images/category_images/'. $directory .'/';*/
+  if (($directory == 'moms') or preg_match('/moms\-kids$/', $_SERVER['REQUEST_URI'])) {
+    $directory = 'kids';
+  }
+  else {
+    $directory = 'new';
+  }
+  $path = base_path() . path_to_theme() .'/images/' . $parent_directory . '/'. $directory . '/';
+
+  if ($handle = opendir($_SERVER['DOCUMENT_ROOT'] . $path)) {
+    while (($file = readdir($handle)) !== false) {
+      if($file != '.' && $file != '..' && !is_file($file) && $file != 'resource.frk' && $file != '.svn') {
+        $files[] = $file;
+      }
+    }
+    closedir($handle);
+  }
+  if(count($files) != 0) {
+    $rnd = rand(0, count($files)-1);
+    return $path . $files[$rnd];
+  }
+}
+
+function vitamin_city_category_header() {
+  $path = vitamin_city_banner_path('category_images');
+  return '<a href="/ambassadors"><img src="'. $path . $files[$rnd] .'" alt=""/></a>';
+}
+
+function vitamin_city_email_header() {
+  $path = vitamin_city_banner_path('newsletter_images');
+  return '<img src="http://vitamindaily.com'. $path . $files[$rnd] .'" width="425" height="151" alt=""/>';
+}
+
+/*
+function vitamin_city_select() {
+  $cities = taxonomy_get_tree(4, 0, -1, 1);  // replace with get city content
+  $retVal = '<form name="nav">';
+  $retVal .= '<select name="SelectURL" onChange="document.location.href=document.nav.SelectURL.options[document.nav.SelectURL.selectedIndex].value" style="width:140px;">';
+  $retVal .= '<option value="#" selected>Select a City</option>';
+  foreach($cities as $city) {
+    if($city->tid != $mycity) {
+      $retVal .= '<option value="/city/'. $city->name .'">'. $city->name .'</option>';
+    }
+    else {
+      $retVal .= '<option value="/">'. $city->name .'</option>';
+    }
+  }
+  $retVal .= '</select>';
+  $retVal .= '</form>';
+  return $retVal;
+}
+*/
+
+function phptemplate_views_view_table_admin_cities($view, $nodes, $type) {
+  $fields = _views_get_fields();
+  foreach ($nodes as $node) {
+    $row = array();
+    foreach ($view->field as $field) {
+      $cell['data'] = $cell['data'] = views_theme_field('views_handle_field', $field['queryname'], $fields, $field, $node, $view);
+      if ($field['label'] == 'City') {
+        $cell['data'] = l($cell['data'], 'node/' . $node->nid . '/edit', array(), "destination=admin_cities");				
+      } else if ($field['label'] == 'Path') {
+        $cell['data'] = l($cell['data'], $cell['data']);				        
+      }
+      $row[] = $cell;
+    }
+    $rows[] = $row;
+  }
+  return theme('table', $view->table_header, $rows);
+}
+
+function word_trim($string, $count, $ellipsis = FALSE){
+  $words = explode(' ', $string);
+  if (count($words) > $count){
+    array_splice($words, $count);
+    $string = implode(' ', $words);
+    if (is_string($ellipsis)){
+      $string .= $ellipsis;
+    }
+    elseif ($ellipsis){
+      $string .= '&hellip;';
+    }
+  }
+  return $string;
+}
+
+function vitamin_city_landing_dose($language) {
+  $result = db_query("SELECT field_taxonomy_id_value FROM {content_type_city} WHERE field_language_value='%s'", $language);
+  while ($row = db_fetch_array($result)) {
+    $cities[] = $row['field_taxonomy_id_value'];
+  }
+  $query = "SELECT n.nid FROM {node} n, {term_node} tn WHERE n.nid=tn.nid AND type='daily_dose'";
+  if ($cities) {
+    $first = true;
+    $query .= ' AND (';
+    foreach ($cities as $city) {
+      if ($first) {
+        $first = false;
+        $query .= "tn.tid=" . $city;
+      } else {
+        $query .= " OR tn.tid=" . $city;
+      }
+    }
+    $query .= ')';
+  }
+  $result = db_query($query . " AND n.promote=1 order by n.created desc");
+  if ($row = db_fetch_array($result)) {
+    $node = node_load($row['nid']);
+  }
+  if (empty($node)) {
+    $result = db_query($query . " order by n.created desc");
+    if ($row = db_fetch_array($result)) {
+      $node = node_load($row['nid']);
+    }    
+  }
+  if ($node) {
+    return partial_render(3, $node);
+  }
+}
+
+function vd_l($text, $path, $attributes = array(), $query = NULL, $fragment = NULL, $absolute = FALSE, $html = FALSE) {
+  $city = vitamin_city_current_city();
+  if ($city) {
+    if ($city->field_language[0]['value'] == 'fr') {
+      $path = 'fr/' . $path;
+    }
+  }
+  return l($text, $path, $attributes, $query, $fragment, $absolute, $html);
+}
+
+function phptemplate_views_fastsearch_display(&$view, &$items, $type) {
+  drupal_add_css(drupal_get_path('module', 'search') .'/search.css', 'module', 'all', FALSE);
+
+  if (isset($items) && is_array($items) && count($items)) {
+    // NOTE: using global to pass values from
+    // views_fastsearch_views_handler_search_index
+    global $_vfs_search_keys;
+    if (isset($_vfs_search_keys)) {
+      $keys = array();
+      foreach ($_vfs_search_keys as $value) {
+        $keys = array_merge($keys, $value);
+      }
+      $excerpt_keys = implode(' ', $keys);
+    }
+
+//    $output = '<h2>'. t('Search Results') .'</h2>';
+    $output .= '<dl class="search-results">';
+    foreach ($items as $item) {
+      // Build the node body.
+      $node = node_load($item->nid);
+      $node = node_build_content($node, FALSE, FALSE);
+      $node->body = drupal_render($node->content);
+
+      // Fetch comments for snippet
+      $node->body .= module_invoke('comment', 'nodeapi', $node, 'update index');
+
+      // Fetch terms for snippet
+      $node->body .= module_invoke('taxonomy', 'nodeapi', $node, 'update index');
+
+      $extra = node_invoke_nodeapi($node, 'search result');
+      $entry = array(
+        'link' => url('node/'. $item->nid, NULL, NULL, TRUE),
+        'type' => node_get_types('name', $node),
+        'title' => $node->title,
+        'user' => theme('username', $node),
+        'date' => $node->changed,
+        'node' => $node,
+        'view' => $view,
+        'extra' => $extra,
+        'score' => $item->score,
+        'snippet' => search_excerpt($excerpt_keys, $node->body)
+      );
+      $output .= theme('views_fastsearch_item', $entry, $type);
+    }
+    $output .= '</dl>';
+    return $output;
+  }
+}
+
+function vitamin_city_landing_search_form($language) {
+
+//  drupal_add_css(drupal_get_path('module', 'search') .'/search.css', 'module', 'all', FALSE);
+
+//  $action = url($city->field_city_url_path[0]['value'] . '/search');
+
+  $form = array(
+    '#action' => $action,
+    '#attributes' => array('class' => 'search-form'),
+  );
+  $form['filter0'] = array(
+    '#type' => 'textfield',
+    '#title' => '',
+    '#size' => 20,
+    '#maxlength' => 255,
+  );
+  $options = array();
+  if ($language == 'fr') {
+    $options[0] = 'Toutes les Villes';
+  } else {
+    $options[0] = 'All Cities';
+  }
+  $cities = vitamin_city_get_cities();
+  foreach ($cities as $city) {
+    $options[$city->nid] = $city->title;
+  }
+  $default = 0;
+//  if ($language == 'fr') {
+//    $default = 3333; // Montreal French
+//  } else {
+//    $default = 3330; // Vancouver
+//  }
+  $form['language'] = array(
+    '#type' => 'hidden',
+    '#value' => $language,
+  );
+  $form['city'] = array(
+    '#type' => 'select',
+    '#default_value' => $default,
+//    '#title' => 'City',
+    '#options' => $options,
+  );
+  if ($language == 'fr') {
+    $form['submit'] = array('#type' => 'submit', '#value' => 'Recherche');    
+  } else {
+    $form['submit'] = array('#type' => 'submit', '#value' => t('Search'));    
+  }
+
+  return $form;
+}
+
+function vitamin_city_landing_search_form_submit($form_id, $form_values) {
+  global $locale;
+  $city = $_POST['city'];
+  if ($city > 0) {
+    $city = node_load($city);
+//    i18n_get_lang($city->field_language[0]['value']);
+//    $locale = $city->field_language[0]['value'];          
+    setcookie('vitamin_city', $city->nid, time() + 60 * 60 * 24 * 365, '/'); //for future requests
+//    $_COOKIE['vitamin_city'] = $city->nid; // for this request
+    drupal_goto('searchcity', 'filter0='. trim($_POST['filter0']) . '&city=' . $city->nid);
+  } else {
+    if ($_POST['language'] == 'fr') {
+      setcookie('vitamin_city', 3333, time() + 60 * 60 * 24 * 365, '/'); //for future requests      
+    } else {
+      setcookie('vitamin_city', 3330, time() + 60 * 60 * 24 * 365, '/'); //for future requests            
+    }
+    drupal_goto('searchall', 'filter0='. trim($_POST['filter0']));    
+  }
+
+//  if($_GET['city'] == 0) {
+    
+//  } else {
+//    $city = node_load($_POST['city']);
+//    drupal_goto($city->field_city_url_path[0]['value'] . '/search', 'filter0='. $_POST['filter0']);    
+//  }
+}
+
+
+function vitamin_city_search_form() {
+  $city = vitamin_city_current_city();
+
+  // Add CSS
+  drupal_add_css(drupal_get_path('module', 'search') .'/search.css', 'module', 'all', FALSE);
+
+  $action = url($city->field_city_url_path[0]['value'] . '/search');
+
+  $form = array(
+    '#action' => $action,
+    '#attributes' => array('class' => 'search-form'),
+  );
+  $form['module'] = array('#type' => 'value', '#value' => $type);
+  $form['basic'] = array('#type' => 'item', '#title' => $prompt);
+  $form['basic']['inline'] = array('#prefix' => '<div class="container-inline">', '#suffix' => '</div>');
+  $form['basic']['inline']['keys'] = array(
+    '#type' => 'textfield',
+    '#title' => '',
+//    '#default_value' => $keys,
+    '#size' => $prompt ? 40 : 20,
+    '#maxlength' => 255,
+  );
+  // processed_keys is used to coordinate keyword passing between other forms
+  // that hook into the basic search form.
+  $form['basic']['inline']['processed_keys'] = array('#type' => 'value', '#value' => array());
+  $form['basic']['inline']['submit'] = array('#type' => 'submit', '#value' => t('Search'));
+
+  return $form;
+}
+
+function vitamin_city_search_form_submit($form_id, $form_values) {
+//  $city = vitamin_city_current_city();
+  drupal_goto('searchall', 'filter0='. trim($form_values['keys']));
+}
+
+function vitamin_city_search_city_form() {
+  $city = vitamin_city_current_city();
+
+  // Add CSS
+  drupal_add_css(drupal_get_path('module', 'search') .'/search.css', 'module', 'all', FALSE);
+
+//  $action = url('/searchall');
+
+  $form = array(
+    '#action' => $action,
+    '#attributes' => array('class' => 'search-form'),
+  );
+  $form['module'] = array('#type' => 'value', '#value' => $type);
+  $form['basic'] = array('#type' => 'item', '#title' => $prompt);
+  $form['basic']['inline'] = array('#prefix' => '<div class="container-inline">', '#suffix' => '</div>');
+  $form['basic']['inline']['keys'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Search',
+    '#default_value' => $_GET['filter0'],
+    '#size' => $prompt ? 40 : 20,
+    '#maxlength' => 255,
+  );
+  $city_options[0] = t('All Cities');
+  $cities = vitamin_city_get_cities();
+  foreach($cities as $city) {
+    $city_options[$city->nid] = $city->title;
+  }
+  $default_city = 0;
+  if (arg(0) != 'searchall') {
+    $default_city = $_GET['city'];
+  }
+  $form['basic']['inline']['city'] = array(
+    '#type' => 'select',
+    '#title' => 'City',
+    '#default_value' => $default_city,
+    '#options' => $city_options,
+  );
+
+  // processed_keys is used to coordinate keyword passing between other forms
+  // that hook into the basic search form.
+  $form['basic']['inline']['processed_keys'] = array('#type' => 'value', '#value' => array());
+  $form['basic']['inline']['submit'] = array('#type' => 'submit', '#value' => t('Search'));
+
+  return $form;
+}
+
+function vitamin_city_search_city_form_submit($form_id, $form_values) {
+  $city = $form_values['city'];
+  if ($city > 0) {
+    $city = node_load($city);
+//    drupal_goto($city->field_city_url_path[0]['value'] . '/search', 'filter0='. trim($form_values['keys']));
+    drupal_goto('searchcity', 'filter0='. trim($form_values['keys']) . '&city=' . $city->nid);
+  } else {
+    drupal_goto('searchall', 'filter0='. trim($form_values['keys']));    
+  }
+}
+
+function vitamin_city_block($op = 'list', $delta = 0) {
+  if ($op == 'list') {
+    $blocks[0]['info'] = t('Vitamin City Search form');
+    return $blocks;
+  }
+  else if ($op == 'view' && user_access('search content')) {
+    $block['content'] = drupal_get_form('vitamin_city_search_form');
+//    $block['subject'] = t('Search');
+    return $block;
+  }
+}
+
+function phptemplate_imagefield_image($file, $alt = '', $title = '', $attributes = null, $getsize = true) {
+  $file = (array)$file;
+  if (!is_file($file['filepath'])) {
+    return;
+  }
+  if (!$getsize || (list($width, $height, $type, $image_attributes) = @getimagesize($file['filepath']))) {
+    $attributes = drupal_attributes($attributes);
+    $path = ($file['fid'] == 'upload') ? $file['preview'] : $file['filepath'];
+    $alt = empty($alt) ? $file['alt'] : $alt;
+    $title = empty($title) ? $file['title'] : $title;
+    $url = file_create_url($path);
+//    return '<img src="'. check_url($url) .'" '. $image_attributes . $attributes .' />';
+    return '<img src="'. check_url($url) .'" alt="'.
+        check_plain($alt) .'" ' . $image_attributes . $attributes .' />';
+//    return '<img src="'. check_url($url) .'" alt="'.
+//        check_plain($alt) .'" title="'. check_plain($title) .'" '. $image_attributes . $attributes .' />';
+  }
+}
+
+function vitamin_city_promo() {
+  /* This is a handler for /promo, which is a fancy redirect
+   * it sets a city cookie if it has a context
+   * it sets a promo_code cookie (30 day expiry)
+   * and passes through the promo_code querystring parameter
+   * Example url:
+   * http://vitamindaily.com/promo?city=toronto&path=user/register&promo_code=videoegg
+  */
+  $city = ucfirst(strtolower($_GET['city']));
+  if (! isset($city) || ! ctype_alpha($city)) {
+    $city = 'Toronto';
+  }
+  $city = node_load(array('title' => $city, 'type'=>'city'));
+  setcookie('vitamin_city', $city->nid, time() + 60 * 60 * 24 * 365, '/');
+  if (ctype_alnum($_GET['promo_code'])) { // promo codes must be alphanumeric
+    setcookie('promo_code', $_GET['promo_code'], time() + 60 * 60 * 24 * 30, '/');  
+  }
+  $path = $_GET['path'];
+  $path = preg_replace('/http(s)?\:\/\//i','',$path); // don't be a redirect service for others
+  if (! isset($path)) { 
+    $path = $city->field_city_url_path[0]['value'];
+  }
+  $path = $path . '?' . http_build_query(array('promo_code'=>$_GET['promo_code']));
+  $url = 'http://' . $_SERVER['HTTP_HOST'] . '/' . $path;
+  print header("Location: {$url}");
+}
+
+// this could be a standalone module called invpoints
+function vitamin_city_invite($op,$args) {
+  if ($op == 'escalate') {
+    // inviter gets a userpoint for every invitee that registers
+    $params = array (
+      'uid' => $args['inviter']->uid,
+      'points' => 1,
+      'description' => $args['inviter']->name . ' (' . $args['inviter']->mail . ') invited ' . $args['invitee']->name . ' (' . $args['invitee']->mail .')',
+      'tid' => 876,
+    );
+    $uprv = userpoints_userpointsapi($params);
+    if (!$uprv['status']) {
+      error_log("invpoints: userpoints inviter error: " . $uprv['reason']);        
+    }
+    // invitee also gets a userpoint for signing up
+    $params = array (
+      'uid' => $args['invitee']->uid,
+      'points' => 1,
+      'description' => $args['invitee']->name . ' (' . $args['invitee']->mail . ') was invited by ' . $args['inviter']->name . ' (' . $args['inviter']->mail .')',
+      'tid' => 877,
+    );
+    $uprv = userpoints_userpointsapi($params);    
+    if (!$uprv['status']) {
+      error_log("invpoints: userpoints invitee error: " . $uprv['reason']);        
+    }
+  }
+}
+
+function vitamin_city_gmap_link($lid) {
+  $content = '';
+  $result = db_query("select name, street, city, province from location where lid=%d", $lid);
+  if ($location = db_fetch_object($result)) {
+    $city = vitamin_city_current_city();
+    $language = $city->field_language[0]['value'];
+    $content .= "<a href=\"http://maps.google.com/maps?hl={$language}&q={$location->name}%2C+{$location->street}%2C+{$location->city}%2C+{$location->province}\">". t("Map") . '</a>';
+  }
+  return $content;
+}

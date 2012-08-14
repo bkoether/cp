@@ -1,0 +1,303 @@
+# $Id: he.po,v 1.1.2.1 2009/08/11 19:45:14 hass Exp $
+#
+# LANGUAGE translation of Drupal (translation/translation.module)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from file: translation.module,v 1.3.2.15.2.1 2008/04/23 19:18:49 jareyero
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2008-07-22 23:56+0300\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+#: translation/translation.module:26
+msgid "This module is part of i18n package and provides support for translation relationships."
+msgstr ""
+
+#: translation/translation.module:27
+msgid "The objects you can define translation relationships for are:"
+msgstr ""
+
+#: translation/translation.module:29
+msgid "Nodes."
+msgstr "פריטי תוכן."
+
+#: translation/translation.module:30
+msgid "Taxonomy Terms"
+msgstr "סיווגים"
+
+#: translation/translation.module:32
+msgid "Additional features:"
+msgstr "תכונות נוספות:"
+
+#: translation/translation.module:34
+msgid "<i>Translations</i> block that looks like the language switcher provided by i18n module but also links to translations when available."
+msgstr ""
+
+#: translation/translation.module:35
+msgid "Basic translation workflow and administration page for content translation."
+msgstr "זרימה רגילה של עבודת התרגום ועמוד הניהול לתרגום תוכן."
+
+#: translation/translation.module:36
+msgid "Links for node translations that can be displayed below each node, depending on module settings."
+msgstr "ניתן להציג קישורים לתרגומים של כל פריט תוכן מתחת לפריט התוכן, בהתאם להגדרות הרכיב."
+
+#: translation/translation.module:42
+msgid "<h2>Translations</h2>"
+msgstr "<h2>תרגומים</h2>"
+
+#: translation/translation.module:43
+msgid "<strong>translate nodes</strong> <p>This one, combined with create content permissions, will allow to create node translation</p>"
+msgstr ""
+
+#: translation/translation.module:57
+msgid "translation node autocomplete"
+msgstr ""
+
+#: translation/translation.module:64;86;95 translation/translation.info:0
+msgid "Translation"
+msgstr "תרגום"
+
+#: translation/translation.module:73
+msgid "Manage content translations."
+msgstr "ניהול תרגומי תוכן."
+
+#: translation/translation.module:77
+msgid "List"
+msgstr "רשימה"
+
+#: translation/translation.module:128
+msgid "Language Management"
+msgstr "ניהול שפות"
+
+#: translation/translation.module:130
+msgid "Interface language depends on content."
+msgstr "שפת הממשק תלויה בתוכן הדף."
+
+#: translation/translation.module:130
+msgid "Interface language is independent"
+msgstr "שפת ממשק עצמאית"
+
+#: translation/translation.module:131
+msgid "Whether the whole page should switch language when clicking on a node translation or not."
+msgstr "האם כל העמוד צריך להחליף שפה כשלוחצים על תרגום של פריט תוכן או לא."
+
+#: translation/translation.module:135
+msgid "Links to node translations"
+msgstr "קישור לתרגומים של פריטי תוכן"
+
+#: translation/translation.module:137
+msgid "None."
+msgstr "ללא."
+
+#: translation/translation.module:137
+msgid "Main page only"
+msgstr "עמוד תוכן בלבד"
+
+#: translation/translation.module:137
+msgid "Teaser and Main page"
+msgstr "תקציר ועמוד תוכן"
+
+#: translation/translation.module:138
+msgid "Links from nodes to translated versions."
+msgstr "קישור מפריטי תוכן לגירסאות מתורגמות."
+
+#: translation/translation.module:142;221
+msgid "Translation workflow"
+msgstr "זרימת עבודת התרגום"
+
+#: translation/translation.module:145
+msgid "If enabled some worklow will be provided for content translation."
+msgstr "אם מאופשר, תופעל זרימת עבודה מסויימת עבור תרגום תוכן."
+
+#: translation/translation.module:195
+msgid "Language cannot be changed while creating a translation."
+msgstr "לא ניתן להחליף שפה בזמן יצירת תרגום."
+
+#: translation/translation.module:211
+msgid "Language and translations"
+msgstr "שפה ותרגומים"
+
+#: translation/translation.module:223
+msgid "Use the translation workflow to keep track of content that needs translation."
+msgstr "שדה זה משמש למעקב אחר זרימת עבודת תרגום התוכן."
+
+#: translation/translation.module:236
+msgid "Files from translated content"
+msgstr ""
+
+#: translation/translation.module:241
+msgid "You can remove the files for this translation or keep the original files and translate the description."
+msgstr ""
+
+#: translation/translation.module:420
+msgid "You need to set a language before creating a translation."
+msgstr "יש לבחור שפה לפני בחירת תרגום."
+
+#: translation/translation.module:448
+msgid "Select translation for %language"
+msgstr "בחר תרגום אחר ל%language"
+
+#: translation/translation.module:452
+msgid "Search for node"
+msgstr "חיפוש פריט תוכן"
+
+#: translation/translation.module:453
+msgid "Enter node id or title"
+msgstr "הכנס את קוד פריט התוכן או את הכותרת שלו"
+
+#: translation/translation.module:459
+msgid "Or select from the list"
+msgstr "או בחר מהרשימה"
+
+#: translation/translation.module:543
+msgid "published"
+msgstr "פורסם"
+
+#: translation/translation.module:543
+msgid "not published"
+msgstr "לא פורסם"
+
+#: translation/translation.module:546
+msgid "edit translation"
+msgstr "ערוך תרגום"
+
+#: translation/translation.module:552;715
+msgid "create translation"
+msgstr "צור תרגום"
+
+#: translation/translation.module:553;718
+msgid "select node"
+msgstr "בחר פריט תוכן"
+
+#: translation/translation.module:609
+msgid "And translation conditions are"
+msgstr ""
+
+#: translation/translation.module:614
+msgid "source language"
+msgstr "שפת מקור"
+
+#: translation/translation.module:616
+msgid "source status"
+msgstr "מצב מקור"
+
+#: translation/translation.module:618
+msgid "translation language"
+msgstr "שפת תרגום"
+
+#: translation/translation.module:620
+msgid "translation status"
+msgstr "מצב תרגום"
+
+#: translation/translation.module:622;644
+msgid "Filter"
+msgstr "מסנן"
+
+#: translation/translation.module:624;650
+msgid "Reset"
+msgstr ""
+
+#: translation/translation.module:662
+msgid "Type"
+msgstr "סוג"
+
+#: translation/translation.module:662
+msgid "Translation status"
+msgstr "מצב תרגום"
+
+#: translation/translation.module:680
+msgid "No posts available."
+msgstr "אין פריטי תוכן זמינים"
+
+#: translation/translation.module:704
+msgid "Options"
+msgstr "אפשרויות"
+
+#: translation/translation.module:712
+msgid "Published"
+msgstr "פורסם"
+
+#: translation/translation.module:712
+msgid "Not published"
+msgstr "לא פורסם"
+
+#: translation/translation.module:714
+msgid "Not translated"
+msgstr "לא תורגם"
+
+#: translation/translation.module:725
+msgid "Current translations"
+msgstr "תרגומים נוכחיים"
+
+#: translation/translation.module:733
+msgid "Remove from translation"
+msgstr "הסר מהתרגום"
+
+#: translation/translation.module:734
+msgid "This will just unlink the node from this translation set."
+msgstr "זה יבטל את הקישור בין פריט התוכן לסט תרגומים זה."
+
+#: translation/translation.module:737
+msgid "Remove"
+msgstr "הסר"
+
+#: translation/translation.module:747
+msgid "The node has been removed from the translation set"
+msgstr "פריט התוכן הוסר מקבוצת התרגום"
+
+#: translation/translation.module:766
+msgid "<p>No nodes available in %language</p>"
+msgstr "<p>אין פריטי תוכן שזמינים ב %language</p>"
+
+#: translation/translation.module:792
+msgid "The translation has been saved"
+msgstr "התרגום נשמר"
+
+#: translation/translation.module:807
+msgid "Removed translation information from term"
+msgstr "הוסר התרגום של הסיווג"
+
+#: translation/translation.module:914
+msgid "Edit term translations"
+msgstr "ערון את תרגומי הסיווג"
+
+#: translation/translation.module:957
+msgid "new translation"
+msgstr "תרגום חדש"
+
+#: translation/translation.module:999
+msgid "Term translations have been updated"
+msgstr "תרגומי הסיווג עודכנו"
+
+#: translation/translation.module:1179
+msgid "None"
+msgstr "ללא"
+
+#: translation/translation.module:1180
+msgid "Source content (to be translated)"
+msgstr "התוכן המקורי (שיתורגם)"
+
+#: translation/translation.module:1181
+msgid "Translation in progress"
+msgstr "תרגום בתהליך"
+
+#: translation/translation.module:1182
+msgid "Translated content"
+msgstr "תוכן מתורגם"
+
+#: translation/translation.module:1183
+msgid "Source updated (to update translation)"
+msgstr "התוכן המקורי עודכן (יש לעדכן את התרגום)"
+
+#: translation/translation.info:0
+msgid "Manages translations between nodes and taxonomy terms."
+msgstr "ניהול התרגומים בין פריטי תוכן וסיווגים."
+

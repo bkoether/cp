@@ -1,0 +1,6 @@
+Token           Field               Format
+[TITLE]         node->title
+[CREATED_LONG]  node->created        2012-07-11T12:50:16-04:00
+[ID]            node->nid
+[CREATED_SHORT] node->created       20120711
+[BODY]          node->body          <CPStoryPara Number="x">...</CPStoryPara>

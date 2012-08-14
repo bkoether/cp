@@ -1,0 +1,67 @@
+8
+
+dir
+721
+http://svn.dailydose.ca/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/i18nprofile
+http://svn.dailydose.ca
+
+
+
+2010-04-02T03:10:28.535259Z
+630
+weston
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0e0cc069-df17-4a3a-be03-5ea6ad17db6b
+
+i18nprofile.module
+file
+
+
+
+
+2011-10-06T07:01:03.000000Z
+8c3ed905b7e443a8b599f12577ee52a9
+2008-11-19T23:44:48.346916Z
+128
+chris
+
+i18nprofile.install
+file
+
+
+
+
+2011-10-06T07:01:03.000000Z
+8b3ab528f23f31fc9575385451eed8c0
+2008-11-19T23:44:48.346916Z
+128
+chris
+
+i18nprofile.info
+file
+
+
+
+
+2011-10-06T07:01:03.000000Z
+c224c9265789d01e3fb0eb8143f14661
+2010-04-02T03:10:28.535259Z
+630
+weston
+
+po
+dir
+

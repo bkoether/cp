@@ -1,0 +1,198 @@
+<?php
+
+function email_template_menu($may_cache) {
+  $items = array();
+  if (!$may_cache) {
+    if(arg(0) == 'node' && arg(1)) {
+      $node = node_load(arg(1));
+      // Displays the HTML Templates tab on daily_dose and stealsanddeals
+      if($node->type == 'daily_dose' || $node->type == 'stealsanddeals' || $node->type == 'stealsanddealskids') {
+        $items[] = array(
+          'path' => 'node/'. $node->nid .'/email-template',
+          'title' => t('HTML Templates'),
+          'callback' => 'fetch_email_template',
+          'callback arguments' => $node,
+          'access' => user_access('get email templates'),
+          'type' => MENU_LOCAL_TASK
+        );
+      }
+    }
+  }
+  return $items;
+}
+
+function email_template_perm() {
+  return array('get email templates');
+}
+
+function fetch_email_template_form($node) {
+  $node = node_load($node);
+  $output = '';
+
+  // get a list of the templates
+  $result = db_query('SELECT vid, title FROM {node} WHERE type = "%s"', 'email_template');
+  while($t = db_fetch_array($result)) {
+    $template[$t['vid']] = $t['title'];
+  }
+
+  $taxo_nb = count($node->taxonomy);
+  reset($node->taxonomy);
+  foreach($template as $ti => $tn) {
+    reset($node->taxonomy);
+    for($i = 1; $i <= $taxo_nb; $i++) {
+      if(trim($node->type .' - '. strtolower(current($node->taxonomy)->name))  == trim(strtolower($tn))) {
+        $output = email_template_generator($node, $ti);
+        $form[$tn] = array(
+          '#type' => 'textarea',
+          '#title' => ucfirst($tn),
+          '#description' => t('Copy and paste the code in your mass email application.'),
+          '#default_value' => $output,
+          '#theme' => 'email_template_textarea',
+        );
+      }
+      next($node->taxonomy);
+    }
+  }
+  // hard coded... Outputs a Sponsor template on every dose
+  /*
+  $output = email_template_generator($node, 886);
+  $form['Sponsor'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Sponsored Dose'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE
+  );
+  $form['Sponsor']['data'] = array(
+    '#type' => 'textarea',
+    '#title' => 'Sponsor',
+    '#description' => t('Copy and paste the code in your mass email application.'),
+    '#default_value' => $output
+  );
+  */
+  return $form;
+}
+
+function fetch_email_template($node) {
+  $output = drupal_get_form('fetch_email_template_form', $node);
+  $test = $output;
+  return $output;
+}
+
+function email_template_generator($node, $template_vid) {
+  $frame = db_result(db_query('SELECT body FROM {node_revisions} WHERE vid = %d', $template_vid));
+  $node->body = str_replace('src="/sites', 'src="http://'.  $_SERVER['HTTP_HOST'] .'/sites', $node->body);
+
+  // Image generation, CRUFT?
+  $nid = $node->nid;
+  $taxos = taxonomy_node_get_terms_by_vocabulary($nid, 3);
+  foreach($taxos as $taxo) {
+    $d = explode(' ', $taxo->name);
+    $directory = strtolower($d[0]);
+  }
+  $path = base_path() . path_to_theme() .'/images/newsletter_images/'. $directory .'/';
+  if ($handle = opendir('/var/www/html'. $path)) {
+    while (($file = readdir($handle)) !== false) {
+      if($file != '.' && $file != '..' && !is_file($file) && $file != 'resource.frk') {
+        $files[] = $file;
+      }
+    }
+    closedir($handle);
+    $rnd = rand(0, count($files)-1);
+    $img = '<img src="http://'. $_SERVER['HTTP_HOST'] . $path . $files[$rnd] .'" />';
+  }
+  else {
+    $img = '';
+  }
+
+  // Metablock generation
+  $metablock = theme('email_template_metablock', $node->nid);
+  //$metablock = theme('email_template_sponsorblock');
+
+//  $template = str_replace('%TOPIMG%', $img, $frame);  christopher
+  $template = str_replace('%TOPIMG%', vitamin_city_email_header(), $frame);
+  $template = str_replace('%TITLE%', $node->title, $template);
+  $template = str_replace('%DATE%', strtoupper(date('F jS, Y', $node->created - (60*60*24) )), $template);
+  $template = str_replace('%BODY%', $node->body, $template);
+  $template = str_replace('%METABLOCK%', $metablock, $template);
+  $template = str_replace('%URL%', url("node/{$node->nid}", NULL, NULL, true), $template);
+  $template = str_replace('%YEAR%', date('Y'), $template);
+  //$template = str_replace('%SPONSORBLOCK%', $metablock, $template);
+  return $template;
+}
+
+function theme_email_template_metablock($nid) {
+  // meta block generation
+  $node = node_load($nid);
+
+  // TODO: get the city by inspecting the node
+  if(strtolower($_SERVER['HTTP_HOST']) == 'vitamint.ca') {
+    $city = 'toronto';
+  }
+  elseif(strtolower($_SERVER['HTTP_HOST']) == 'vitaminm.ca') {
+    $city = 'montreal';
+  }
+  else {
+    $city = 'vancouver';
+  }
+
+  if (count($node->taxonomy)) {
+    $mytags = '';
+    $output = '';
+    foreach($node->taxonomy as $term) {
+      //Free tags
+      if($term->vid == 1) {
+        $mytags .= l($node->taxonomy[$term->tid]->name, 'http://'. $_SERVER['HTTP_HOST'] .'/'. $city .'/kw', array(), 'filter0='. $term->tid) .', ';
+      }
+      //Topic
+      elseif($term->vid == 3) {
+        $mytopic = $term->name;
+      }
+    }
+
+    $output .= '<h4>'. t($mytopic) .'</h4>';
+    // $output .= '<h5>' . t('MAKE IT YOURS') . '</h5>';
+    // $output .= '<div class="links"><ul>';
+    // $output .= '<li><a href="http://'. $_SERVER['HTTP_HOST'] .'/favorite_nodes/add/'. $node->nid .'">'. t('ADD TO YOUR FAVOURITES') . '</li>';
+    // $output .= '<li><a href="http://'. $_SERVER['HTTP_HOST'] .'/forward?path=node/' . $node->nid .'">' . t('SEND TO A FRIEND') . '</a></li>';
+     if($node->field_map_link[0]['url'] != '') {
+     $output .= '<h5>MAKE IT YOURS</h5><div class="links"><ul><li class="last">'. l(t('GOOGLE MAP'), $node->field_map_link[0]['url']) .'</li></ul></div>';
+     }
+    // $output .= '</ul></div>';
+
+    $related_doses = related_nodes_display_related($node->nid);
+    if ($related_doses) {
+      $related_doses = preg_replace('/\/content\//','http://'. $_SERVER['HTTP_HOST'] . '/content/', $related_doses);
+      $output .=  '<h5>' . t('RELATED DOSES') . '</h5>';
+      $output .=  '<div class="links">';
+      $output .=  $related_doses;
+      $output .=  '</div>';
+    }
+
+
+    if($mytags != '') {
+      $output .= '<h5>' . t('TAGS') . '</h5>';
+      $output .= '<p>'. substr($mytags, 0, -2) .'</p>';
+    }
+  }
+  return $output;
+}
+
+/*
+function theme_email_template_sponsorblock() {
+  $output = '<p>DID A FRIEND SEND THIS TO YOU? <a href="http://'. $_SERVER['HTTP_HOST'] .'/user/register"><img src="http://'. $_SERVER['HTTP_HOST'] . base_path() . path_to_theme() .'/images/header/v_subscribe.gif" /></a></p>';
+  return $output;
+}
+*/
+
+function theme_email_template_textarea($element) {
+  $class = array('form-textarea');
+  if ($element['#resizable'] !== FALSE) {
+    drupal_add_js('misc/textarea.js');
+    $class[] = 'resizable';
+  }
+
+  $cols = $element['#cols'] ? ' cols="'. $element['#cols'] .'"' : '';
+  _form_set_class($element, $class);
+  return theme('form_element', $element,
+               '<textarea'. $cols .' rows="'. $element['#rows'] .'" name="'. $element['#name'] .'" id="'. $element['#id'] .'" '. drupal_attributes($element['#attributes']) .'>'. $element['#value'] .'</textarea>');
+}

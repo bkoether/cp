@@ -1,0 +1,5 @@
+; $Id $
+name = "Constant Contact"
+description = "Integration of Constant Contact subscribe/unsubscribe API."
+version = "5.x-1.x-dev"
+dependencies = profile

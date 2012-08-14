@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha
+END
+recaptcha.install
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha/recaptcha.install
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha/LICENSE.txt
+END
+recaptcha_mailhide.info
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha/recaptcha_mailhide.info
+END
+recaptcha.inc
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha/recaptcha.inc
+END
+recaptcha.info
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha/recaptcha.info
+END
+recaptcha_mailhide.module
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha/recaptcha_mailhide.module
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha/README.txt
+END
+.cvsignore
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha/.cvsignore
+END
+recaptcha.module
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/recaptcha/recaptcha.module
+END

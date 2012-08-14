@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/LICENSE.txt
+END
+akismet.gif
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/akismet.gif
+END
+akismet.module
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/akismet.module
+END
+akismet.install
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/akismet.install
+END
+INSTALL.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/INSTALL.txt
+END
+CHANGELOG.txt
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/CHANGELOG.txt
+END
+akismet_cron.inc
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/akismet_cron.inc
+END
+akismet.info
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/akismet.info
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/README.txt
+END
+akismet_admin.inc
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/akismet/akismet_admin.inc
+END

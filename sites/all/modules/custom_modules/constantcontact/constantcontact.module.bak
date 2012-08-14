@@ -1,0 +1,1055 @@
+<?php
+
+/*******************************************************************************
+ * Constant Contact API addresses
+ */
+
+define('SUBSCRIBE', variable_get('cc_subscribe', 'https://api.constantcontact.com/0.1/API_AddSiteVisitor.jsp'));
+define('UNSUBSCRIBE', variable_get('cc_unsubscribe', 'https://api.constantcontact.com/0.1/API_UnsubscribeSiteVisitor.jsp'));
+
+/*******************************************************************************
+ * Drupal Hooks
+ */
+
+function constantcontact_help($section) {
+  switch ($section) {
+    case 'admin/help#constantcontact':
+      $info .= "<p>-- Overview --------------------------------------------------------------------</p>
+                <p>The Constant Contact (CC) module is a Drupal interface to CC to allow managing your contacts on your CC mailing Lists.</p>
+                <p>Unfortunately, the CC API is rather thin, so you will need to set up your lists using CC interface before you can manage the contacts via Drupal.</p>
+                <p>If you want to manage other information than just the email address, you will to enable and use the profile module. This also allows to add your mailing lists to the user registration. See the Configuration section.</p>
+                <p>It also is possible that you want to start using this module and already have a CC account and populated lists. No problems, see the Configuration section.</p>
+                <p>-- Configuration ---------------------------------------------------------------</p>
+                <p>-- Profile matching --<br />
+                For passing more than just the email address to CC, the Name of the fields you create in a profile (Administer -> User management -> Profiles) will need to be paired up with the correct CC field. To do so, proceed to Administer -> Site Configuration -> Constant Contact Settings and expand the CC / Drupal relationships fieldset. For the desired CC elements, enter the corresponding profile field name. For example, if you want to have the first name added to your CC mailing list, you may set a profile field with the name profile_firstname. Then in the CC / Drupal relationships, in the First Name field you would enter profile_firstname.</p>
+                <p>-- Bulk import --<br />
+                To perform a bulk import of contacts using a CSV file, proceed to Administer -> Site Configuration -> Constant Contact Settings and expand the CSV fieldset. Note that if you select the 'Update Constant Contact Lists', the process will update your current contact in CC, so backup you CC lists first! Also beware of the fact that when running a bulk import, the lists associated with a given user will be overwritten and NOT appended. This means that if ms_x@xdomain.com is a recipient of List1 and that you run an import with his email selecting only List2 she will be remove from List1</p>
+                <p>-- Anonymous unsubscribe --<br />
+                You may want to allow your contact to unregister from your lists without requiring them to create a Drupal account. If this is the case, click the 'Allow anonymous unsubscribe' on the Administer -> Site Configuration -> Constant Contact setting page. You will be able to create a link to cclists/unsubscribe which allows anonymous users to proceed with usubscription.</p>";
+      return t($info);
+  }
+}
+
+function constantcontact_perm() {
+  return array('administer constant contact', 'manage own constant contact lists');
+}
+
+function constantcontact_menu($may_cache) {
+  $items = array();
+  global $user;
+  if (!$may_cache) {
+    $items[] = array(
+      'path' => 'user/'. arg(1) .'/cclists',
+      'title' => t('Mailing lists'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => 'constantcontact_form',
+      'access' => (user_access('manage own constant contact lists') || user_access('administer constant contact')),
+      'type' => MENU_LOCAL_TASK,
+    );
+    $items[] = array(
+      'path' => 'admin/settings/constantcontact',
+      'title' => t('Constant Contact Settings'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('constantcontact_settings'),
+      'access' => user_access('administer constant contact'),
+      'description' => t('Setting for Constant Contact.'),
+      'type' => MENU_NORMAL_ITEM,
+    );
+    $items[] = array(
+      'path' => 'user/email/autocomplete',
+      'title' => t('email autocomplete'),
+      'callback' => '_email_autocomplete',
+      'access' => user_access('administer constant contact'),
+      'type' => MENU_CALLBACK
+    );
+    $anon = variable_get('cc_anon', '');
+    /**
+     * Allowing anon users to unsubscribe is the reason we use the user email
+     * and not the uid to identify a user.
+     */
+    if($anon == 1) {
+      $items[] = array(
+        'path' => 'cclists/unsubscribe',
+        'title' => t("Unsubscribe to Vitamin's mailing lists"),
+        'callback' => 'drupal_get_form',
+        'callback arguments' => 'constantcontact_unsubscribe_form',
+        'access' => TRUE,
+        'type' => MENU_CALLBACK
+      );
+      $items[] = array(
+        'path' => 'cclists/remove',
+        'title' => t("Confirm removal from Vitamin's mailing lists"),
+        'callback' => '_constantcontact_remove',
+        'access' => TRUE,
+        'type' => MENU_CALLBACK
+      );
+    }
+  }
+  return $items;
+}
+
+function constantcontact_user($op, &$edit, &$user, $category = NULL) {
+  switch ($op) {
+    //@TODO make this optional
+    case 'register':
+      return _constantcontact_form_user_register($edit, $user, $category);
+    case 'insert':
+      return _constantcontact_save_user_register($edit, $user, $category);
+    case 'delete':
+      db_query('DELETE FROM {constantcontact} WHERE email = "%s"', $user->mail);
+  }
+}
+
+function constantcontact_settings() {
+  $form['#attributes']['enctype'] = 'multipart/form-data';
+  $form['cc_subscribe'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Constant Contact Subscribe URL'),
+    '#default_value' => variable_get('cc_subscribe', 'https://ccprod.roving.com/roving/wdk/API_AddSiteVisitor.jsp'),
+    '#size' => 70,
+    '#maxlength' => 70,
+    '#description' => t("Enter the Constant Contact subscribe URL."),
+    '#required' => TRUE
+  );
+  $form['cc_unsubscribe'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Constant Contact Unsubscribe URL'),
+    '#default_value' => variable_get('cc_unsubscribe', 'https://ccprod.roving.com/roving/wdk/API_UnsubscribeSiteVisitor.jsp'),
+    '#size' => 70,
+    '#maxlength' => 70,
+    '#description' => t("Enter the Constant Contact unsubscribe URL."),
+    '#required' => TRUE
+  );
+  $form['cc_username'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Constant Contact username'),
+    '#default_value' => variable_get('cc_username', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+    '#description' => t("Enter your Constant contact username."),
+    '#required' => TRUE
+  );
+  $form['cc_pass'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Constant Contact password'),
+    '#default_value' => variable_get('cc_pass', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+    '#description' => t("Enter your Constant Contact password."),
+    '#required' => TRUE
+  );
+  $form['cc_list'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Constant Contact lists'),
+    '#default_value' => variable_get('cc_list', ''),
+    '#size' => 70,
+    '#maxlength' => 500,
+    '#description' => t("Enter your Constant Contact list names. List names must be delimitted by commas. For example: friends, frisbee team-mates, etc. ATTENTION: Lists name are case sensitive."),
+  );
+  $form['cc_pk'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Private Key'),
+    '#default_value' => variable_get('cc_pk', ''),
+    '#size' => 70,
+    '#maxlength' => 128,
+    '#description' => t("Enter a passphrase. Use a combination of alphanumeric characters. If you do not specify a key, a random key will be generated when required."),
+  );
+  $form['cc_anon'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow anonymous unsubscribe'),
+    '#default_value' => variable_get('cc_anon', ''),
+    '#description' => t("Allows anon users to request be removed from your Constant Contact list via the url cclists/unsubscribe."),
+  );
+  $form['cc_f'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Constant Contact / Drupal Profile relationships'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('Constant Contact has a predefined set of fields you can use. Please add the name from your '. l('profile settings', 'admin/user/profile') .' corresponding to the Constant Contact field. Note that if none of the fields below are filled, only the email address will be passed on to Constant Contact.'),
+  );
+  $form['cc_f']['01_cc_f_First_Name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('First Name'),
+    '#default_value' => variable_get('01_cc_f_First_Name', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['02_cc_f_Middle_Name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Middle Name'),
+    '#default_value' => variable_get('02_cc_f_Middle_Name', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['03_cc_f_Last_Name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Last Name'),
+    '#default_value' => variable_get('03_cc_f_Last_Name', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['04_cc_f_Job_Title'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Job Title'),
+    '#default_value' => variable_get('04_cc_f_Job_Title', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['05_cc_f_Company_Name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Company Name'),
+    '#default_value' => variable_get('05_cc_f_Company_Name', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['06_cc_f_Work_Phone'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Work Phone'),
+    '#default_value' => variable_get('06_cc_f_Work_Phone', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['07_cc_f_Home_Phone'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Home Phone'),
+    '#default_value' => variable_get('07_cc_f_Home_Phone', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['08_cc_f_Address_Line_1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Address Line 1'),
+    '#default_value' => variable_get('08_cc_f_Address_Line_1', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['09_cc_f_Address_Line_2'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Address Line 2'),
+    '#default_value' => variable_get('09_cc_f_Address_Line_2', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['10_cc_f_Address_Line_3'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Address Line 3'),
+    '#default_value' => variable_get('10_cc_f_Address_Line_3', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['11_cc_f_City'] = array(
+    '#type' => 'textfield',
+    '#title' => t('City'),
+    '#default_value' => variable_get('11_cc_f_City', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['12_cc_f_State'] = array(
+    '#type' => 'textfield',
+    '#title' => t('State'),
+    '#default_value' => variable_get('12_cc_f_State', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['13_cc_f_Country'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Country'),
+    '#default_value' => variable_get('13_cc_f_Country', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['14_cc_f_Postal_Code'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Postal Code'),
+    '#default_value' => variable_get('14_cc_f_Postal_Code', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['15_cc_f_Sub_Postal_Code'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Sub Postal Code'),
+    '#default_value' => variable_get('15_cc_f_Sub_Postal_Code', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['16_cc_f_Email_Type'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Email Type'),
+    '#default_value' => variable_get('16_cc_f_Email_Type', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+    '#description' => t('In this field, you may force the default email type by typing <strong>H</strong> for HTML or <strong>T</strong> TEXT')
+  );
+  $form['cc_f']['17_cc_f_Custom_field_1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 1'),
+    '#default_value' => variable_get('17_cc_f_Custom_field_1', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['18_cc_f_Custom_field_2'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 2'),
+    '#default_value' => variable_get('18_cc_f_Custom_field_2', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['19_cc_f_Custom_field_3'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 3'),
+    '#default_value' => variable_get('19_cc_f_Custom_field_3', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['20_cc_f_Custom_field_4'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 4'),
+    '#default_value' => variable_get('20_cc_f_Custom_field_4', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['21_cc_f_Custom_field_5'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 5'),
+    '#default_value' => variable_get('21_cc_f_Custom_field_5', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['22_cc_f_Custom_field_6'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 6'),
+    '#default_value' => variable_get('22_cc_f_Custom_field_6', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['23_cc_f_Custom_field_7'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 7'),
+    '#default_value' => variable_get('23_cc_f_Custom_field_7', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['24_cc_f_Custom_field_8'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 8'),
+    '#default_value' => variable_get('24_cc_f_Custom_field_8', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['25_cc_f_Custom_field_9'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 9'),
+    '#default_value' => variable_get('25_cc_f_Custom_field_9', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['26_cc_f_Custom_field_10'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 10'),
+    '#default_value' => variable_get('26_cc_f_Custom_field_10', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['27_cc_f_Custom_field_11'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 11'),
+    '#default_value' => variable_get('27_cc_f_Custom_field_11', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['28_cc_f_Custom_field_12'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 12'),
+    '#default_value' => variable_get('28_cc_f_Custom_field_12', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['29_cc_f_Custom_field_13'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 13'),
+    '#default_value' => variable_get('29_cc_f_Custom_field_13', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['30_cc_f_Custom_field_14'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 14'),
+    '#default_value' => variable_get('30_cc_f_Custom_field_14', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['cc_f']['31_cc_f_Custom_field_15'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Custom field 15'),
+    '#default_value' => variable_get('31_cc_f_Custom_field_15', ''),
+    '#size' => 70,
+    '#maxlength' => 70,
+  );
+  $form['file'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('CSV Import'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('<p>You may import a list of contacts, both to Drupal and Constanct Contact by uploading a comma separated file (CSV) file containing your data.</p><p><span class="error">Please read this carefully:</span> Before doing any kind of import, you should backup your Constant Contact mailing lists.</p><p>This utility assumes that the order of the fields in your CSV file is the same as the order of the fields presented in the above section "Constant Contact / Drupal Profile relationships". In this regard, you must also include the fields for which you have not created a relationship. The only difference is that the first field of your file should be the email address of the contact.</p><p>Note: this utility will update any existing contact in the selected list but will not delete contacts that are not in the import file.</p>'),
+  );
+  $lists = variable_get('cc_list', '');
+  if($lists != '') {
+    $lists_array = explode(',', $lists);
+    foreach($lists_array as $list_item) {
+      $list_item = trim($list_item);
+      $list_index = urlencode($list_item);
+      $list_options[$list_index] = $list_item;
+    }
+    $form['file']['cc_lists'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Lists'),
+      '#description' => t('Select the list(s) to which your contacts will be imported'),
+      '#options' => $list_options,
+    );
+    $form['file']['cc_csv'] = array(
+      '#type' => 'file',
+      '#title' => t('CSV file'),
+      '#size' => 50,
+      '#description' => t('Note that depending on the size of the file this operation may take a few minutes.'),
+      '#default_value' => $node['cc_csv'],
+    );
+    /**
+     * @TODO: force users to use headings - then the order of the fields in the
+     * CSV files won't matter as we will able to match them
+     */
+    $form['file']['cc_csv_head'] = array(
+      '#type' => 'radios',
+      '#title' => t('Does the file have headings?'),
+      '#options' => array(t('No'), t('Yes')),
+      '#description' => t('Select whether or not your CSV file has the headings on the first line. If you specify "Yes" the first line of your CSV file will not be imported.'),
+    );
+    $form['file']['cc_update_lists'] = array(
+      '#type' => 'radios',
+      '#title' => t('Update Constant Contact Lists'),
+      '#options' => array(t('No'), t('Yes')),
+      '#description' => t('If you select "Yes" the data will be send to Constant Contact and your list will be updated. If you select no, the information will be added to the Drupal database only. Be careful as this may lead to discrepencies between the Drupal and the Constant Contact data.'),
+    );
+  }
+  else {
+    $form['lists'][$list_index] = array(
+      '#default_value' => t('You must first define one or several lists before being able to upload a list of contacts.')
+    );
+  }
+  $form['buttons']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration') );
+  $form['buttons']['reset'] = array('#type' => 'submit', '#value' => t('Reset to defaults') );
+  return system_settings_form($form);
+
+}
+
+function constantcontact_settings_validate($form_id, &$node, $form_values) {
+  // Validates file uploads
+  $file = file_check_upload('cc_csv');
+  if($file){
+    $ext = end(explode('.', $file->filename));
+    if($ext != 'csv'){
+      $msg = t('Only .cvs files are allowed.');
+      form_set_error('', $msg);
+    }
+    if($file->filesize > 1025000) {
+      form_set_error('file][cc_csv', 'The file size is limited to 1Mb.');
+    }
+    if($node['cc_csv_head'] == '') {
+      form_set_error('file][cc_csv_head', 'Please select whether the CSV file has headings or not.');
+    }
+    if($node['cc_update_lists'] == '') {
+      form_set_error('file][cc_update_lists', 'Please select whether or not you want your Constant Contact lists to be updated.');
+    }
+    $list_error = TRUE;
+    foreach($node['cc_lists'] as $list) {
+      if($list != '0') {
+        $list_error = FALSE;
+        break;
+      }
+    }
+    if($list_error == TRUE) {
+      form_set_error('file', 'Please select at least one list to import your contacts to.');
+    }
+  }
+}
+
+function constantcontact_settings_submit($form_id, &$node) {
+  system_settings_form_submit($form_id, $node);
+
+  // CSV import
+  $file = file_check_upload('cc_csv');
+  if($file){
+    $csvdata = _csv_to_array($file->filepath, $node['cc_csv_head']);
+    $mylist = '';
+
+    foreach($node['cc_lists'] as $list) {
+      if($list != '0') {
+        $mylists[] = $list;
+        $mylist .= $list .',';
+      }
+    }
+    $mylist = substr($mylist, 0, -1);
+
+    if($node['cc_update_lists'] == 1) {
+      foreach($mylists as $list) {
+        foreach($csvdata as $row) {
+          $data = '';
+          $data_add = '&ic='. $list;
+          foreach($row as $k => $v) {
+            if($k == 'email') {
+              $data = _constantcontact_base_data($v);
+            }
+            else {
+              $data_add .= '&'. $k .'='. urlencode(trim($v));
+            }
+          }
+
+          $ch = curl_init();    // initialize curl handle
+          curl_setopt($ch, CURLOPT_URL, SUBSCRIBE); // set url to post to
+          if(strstr(SUBSCRIBE, 'https')) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); // Avoid verifying the peer's certificate. TRUE by default as of cURL 7.10.
+          }
+          curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+          curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // return into a variable
+          curl_setopt($ch, CURLOPT_TIMEOUT, 5); // times out after 5 sec
+          curl_setopt($ch, CURLOPT_POST, 1); // set POST method
+          curl_setopt($ch, CURLOPT_POSTFIELDS, $data . $data_add);
+          $cc_result = curl_exec($ch); // execute the process
+          curl_close($ch);
+
+          $details = explode("\n",$cc_result);
+          // If return 0 then success
+          if($details[0] != '0') {
+            $cc_error = TRUE;
+            watchdog('Constant Contact', 'Subscribe error for user '. $row['email'] .': '. $details[1], $severity = WATCHDOG_ERROR);
+
+            /**
+             * CC's API is unfortunately pretty thin and so is their
+             * documentation. I'm not even sure what version of the API is
+             * being used here... The doc says "Revised August 2006".
+             *
+             * Debug - Error codes:
+             * 500 is an error. It should also provide some detail such as
+             *     Missing Item, Invalid Credentials, SiteOwner does not Exist,
+             *     Invalid Email Address, List  does not Exist, Unexpected error
+             *     occured, etc.
+             * 400 is also an error! In fact while testing I never got 500
+             *     errors but 400 errors with no details on the error. According
+             *     to CC, a 400 error means that something is wrong in your
+             *     query.
+             */
+            print 'Subscription: '. $details[0] .' - '. $details[1] .'<br>';
+            print 'Data sent '. SUBSCRIBE .'?'. $data;
+          }
+        }
+      }
+    }
+
+    foreach($csvdata as $row) {
+      $email = db_result(db_query('SELECT email FROM {constantcontact} WHERE email = "%s"', $row['email']));
+
+      if($email) {
+        //update or delete user info
+        if(!empty($mylists)) {
+          db_query('UPDATE {constantcontact} SET lists = "%s" WHERE email = "%s"', $mylist, $row['email']);
+        }
+        else {
+          db_query('DELETE FROM {constantcontact} WHERE email = "%s" LIMIT 1', $row['email']);
+        }
+      }
+      else {
+        //insert user info
+        db_query('INSERT INTO {constantcontact} (email, lists) VALUES ("%s", "%s")', $row['email'], $mylist);
+      }
+    }
+  }
+}
+
+//@TODO ???
+function constantcontact_load($node) {
+  $additions = db_fetch_object(db_query('SELECT * FROM {constantcontact} WHERE email = %d', $node->vid));
+  return $additions;
+}
+
+function constantcontact_form() {
+  global $user;
+  if(($user->uid == arg(1) && user_access('manage own constant contact lists')) || user_access('administer users')) {
+    $lists = variable_get('cc_list', '');
+    $mysettings = '';
+    $user_profile = user_load(array('uid' => arg(1)));
+    $result = db_query('SELECT lists, format FROM {constantcontact} WHERE email = "%s"', $user_profile->mail);
+    while($mysettings = db_fetch_array($result)) {
+      $mylists = $mysettings['lists'];
+      $mylists = explode(',', $mylists);
+      $format = $mysettings['format'];
+    }
+
+  if($lists != ''){
+    $form['uid'] = array(
+      '#type' => 'hidden',
+      '#value' => $user->uid,
+    );
+    $form['message'] = array(
+      '#value' => t('Check the mailing list(s) you would like to subscribe to.<br />Similarly, uncheck any mailing list(s) you wish to unsubscribe from.')
+    );
+
+    if(user_access('administer constant contact')) {
+      $form['email'] = array(
+        '#type' => 'textfield',
+        '#title' => t('E-mail'),
+        '#autocomplete_path' => 'user/email/autocomplete',
+        '#description' => "Privileged users may change the subscription for a user. Simply enter the user's email here and select/deselect the mailing lists below.",
+      );
+    }
+    else {
+      $form['email'] = array(
+        '#type' => 'hidden',
+        '#value' => $user_profile->mail,
+      );
+    }
+
+    $lists_array = explode(',', $lists);
+    foreach($lists_array as $list) {
+      $alist = 0;
+      $list = trim($list);
+      foreach($mylists as $mylist) {
+        if($mylist == urlencode($list)) {
+          $alist = 1;
+        }
+      }
+      $list_index = preg_replace('/ /', '_', $list);
+      $form['lists'][$list_index] = array(
+        '#type' => 'checkbox',
+        '#title' => t($list),
+        '#default_value' => $alist
+      );
+    }
+    /* @TODO: implement this feature
+    $form['format'] = array(
+      '#type' => 'radios',
+      '#title' => t('Prefered Format'),
+      '#options' => array('H'=>'HTML', 'T'=>'Plain Text'),
+      '#default_value' => $format
+    );
+    */
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Submit')
+    );
+    return $form;
+  }
+  else {
+    drupal_set_message(t('You must first specify which list(s) users may subscribe to. Go to the '. l('Constant Contact Settings', 'admin/settings/constantcontact')));
+  }
+  }
+  else {
+    drupal_access_denied();
+    exit();
+  }
+}
+
+function constantcontact_form_validate($form_id, &$node) {
+  if(!valid_email_address($node['email'])) form_set_error('email', t('You email is not valid. Please verify it and submit again.'));
+}
+
+function constantcontact_form_submit($form_id, &$node) {
+
+  $user_profile = get_object_vars(user_load(array('uid' => $node['uid'])));
+  if($node['email'] != '') {
+    $email = $node['email'];
+  }
+  else {
+    $email = $user_profile['mail'];
+  }
+
+  $data = _constantcontact_base_data($email);
+
+  // Constant Contact can only subsribe to one list at a time
+  $remove = FALSE;
+  $add = FALSE;
+  $i = 0;
+  $lists = variable_get('cc_list', '');
+  $lists_array = explode(',', $lists);
+  foreach($lists_array as $list) {
+    $list_index = preg_replace('/ /', '_', trim($list));
+    $lists_index[$i] = $list_index;
+    $lists_encoded[$i] = urlencode(trim($list));
+    if($node[$list_index] == 0) {
+      $remove = TRUE;
+    }
+    if($node[$list_index] == 1) {
+      $add = TRUE;
+    }
+    $i++;
+  }
+
+  // Only removes if the user has already at least 1 subscription
+  $result = db_result(db_query('SELECT * FROM {constantcontact} WHERE email = "%s"', $email));
+  if($remove === TRUE && $result != '') {
+    $cc_error = _constantcontact_cc_unsubscribe($data);
+  }
+  if($add === TRUE) {
+    $cc_error = _constantcontact_cc_subscribe($node, $data, $lists_index, $lists_encoded, $uid);
+  }
+  if($cc_error === TRUE) {
+    form_set_error('', t('There was a problem with your submission. Please try again. If the error persists, please contact the administrator of the site.'));
+  }
+  else {
+    _constantcontact_db_insert($node);
+  }
+  if(isset($node['uid'])) {
+    drupal_goto('user/'. $node['uid'] .'/edit');
+  }
+}
+
+function constantcontact_unsubscribe_form(&$node) {
+
+  $form['message'] = array(
+    '#value' => t("Please enter your email address to unsubscribe to <strong>all</strong> of Vitamin's mailing lists.<br />If you would like to keep some mailing lists active while being remove from others, please ". l('login', 'user')." or ". l('create an account', 'user/register') ." if you are not already registered.")
+  );
+  $form['email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Your e-mail address'),
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit')
+  );
+  return $form;
+}
+
+function constantcontact_unsubscribe_form_submit($form_id, &$node) {
+  $hash = _constantcontact_hash($node['email']);
+  theme_constantcontact_confirmation_email($node['email'], $hash);
+}
+
+function constantcontact_remove_form($form_id) {
+  $form['message'] = array(
+    '#value' => t("Clicking the Confirm button will unsubscribe you from <strong>all</strong> Vitamin's mailing lists.<br />If you would like to keep some mailing lists active while being remove from others, please ". l('login', 'user')." or ". l('create an account', 'user/register') ." if you are not already registered.<br />")
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Confirm')
+  );
+  return $form;
+}
+
+function constantcontact_remove_form_submit($form_id, &$node) {
+  $op1 = urldecode(arg(2));
+  if(_constantcontact_hash(arg(2)) == arg(3)) {
+    $data = _constantcontact_base_data(arg(2));
+    $cc_error = _constantcontact_cc_unsubscribe($data);
+    if($cc_error === TRUE) {
+      form_set_error('', t('There was a problem with your submission. Please try again. If the error persists, please contact the administrator of the site.'));
+      watchdog('Constant Contact', 'Unsubscribe CONFIRMATION error for unregistered user '. $op1, $severity = WATCHDOG_ERROR);
+    }
+    else {
+      $from = variable_get('site_name', '');
+      db_query('DELETE FROM {constantcontact} WHERE email = "%s" LIMIT 1', $op1);
+      drupal_set_message(t("You have sucessfully been removed from @site's mailing lists", array('@site'=> $from_name)));
+      drupal_goto('node');
+    }
+  }
+  else {
+    drupal_goto('node');
+  }
+}
+
+function theme_constantcontact_confirmation_email($email, $hash) {
+  $from = variable_get('site_name', '');
+  $subject = t("Unsubscription from @site's newsletters", array('@site' => $from));
+  $body = t("We have received a request for the removal of your e-mail address (@mail) from @site's newsletters.", array('@mail' => $email, '@site'=> $from));
+  $body .= "\n\n". t('If you want to unsubscribe, simply visit the confirmation link at the bottom of this e-mail. If you did not initiate this request, please simply disregard this message.');
+  $body .= "\n\n\n". t('-------------------');
+  $body .= "\n". t('The @site Team',  array('@site'=> $from));
+  $body .= "\n". t('-------------------');
+  $body .= "\n\n". t('Unsubscribe link: @url', array('@url' => url('cclists/remove/'. $email .'/'. $hash, NULL, NULL, TRUE)));
+
+
+  $mail_success = drupal_mail('cc-remove', $email, $subject, $body, $from);
+  if($mail_success) {
+    drupal_set_message(t('A confirmation message has been sent to @mail', array('@mail' => $email)));
+  }
+  else {
+    drupal_set_message(t('There was a problem sending an email to @mail. Please try again. If the the error still shows up, please contact the site administrator.', array('@mail' => $email)), 'error');
+    watchdog('Constant Contact', 'Unsubscribe MAIL error for unregistered user '. $email, $severity = WATCHDOG_ERROR);
+  }
+  return $mail;
+}
+
+/*******************************************************************************
+ * Custom functions
+ */
+
+
+/**
+ * Adds the mailing lists to the register page
+ */
+
+function _constantcontact_form_user_register($edit, $user, $category) {
+
+  $extrafields['Personal']['cclists'] = array(
+        '#type' => 'fieldset',
+        '#title' => t("Mailing Lists"),
+        '#description' => t("Our mailing list allow you to stay on top of current trends, etc, etc..."), //@TODO get wording from DD
+        '#collapsible' => FALSE,
+        '#weight' => 10
+      );
+
+  $lists = variable_get('cc_list', '');
+  if($lists != ''){
+    $lists_array = explode(',', $lists);
+    foreach($lists_array as $list) {
+      $alist = 0;
+      $list = trim($list);
+      $list_index = preg_replace('/ /', '_', $list);
+      $extrafields['Personal']['cclists'][$list_index] = array(
+        '#type' => 'checkbox',
+        '#title' => t($list),
+        '#default_value' => $alist
+      );
+    }
+  }
+
+  return $extrafields;
+}
+
+function _constantcontact_save_user_register($edit, $user, $category) {
+  $mylists = '';
+  $lists = variable_get('cc_list', '');
+  $lists_array = explode(',', $lists);
+
+  $i = 0;
+  foreach($lists_array as $list) {
+    $list_index = preg_replace('/ /', '_', trim($list));
+    $lists_index[$i] = $list_index;
+    $lists_encoded[$i] = urlencode(trim($list));
+    if($edit[$list_index] == 1) {
+      $mylists .= urlencode(trim($list)) .',';
+    }
+    $i++;
+  }
+  $mylists = substr($mylists, 0, -1);
+
+  db_query('INSERT INTO {constantcontact} (email, lists) VALUES ("%s", "%s")', $user->mail, $mylists);
+
+  // Sends data to CC
+  $data = _constantcontact_base_data($user->mail);
+  _constantcontact_cc_subscribe($edit, $data, $lists_index, $lists_encoded, $user->uid);
+}
+
+function _constantcontact_db_insert($node) {
+  $mylists = '';
+  $lists = variable_get('cc_list', '');
+  $lists_array = explode(',', $lists);
+
+  foreach($lists_array as $list) {
+    $list_index = preg_replace('/ /', '_', trim($list));
+    if($node[$list_index] == 1) {
+      $mylists .= urlencode(trim($list)) .',';
+    }
+  }
+  $mylists = substr($mylists, 0, -1);
+
+  if($node['email'] != '') {
+    $email = $node['email'];
+  }
+  else {
+    $email = $user_profile['mail'];
+  }
+  $email = db_result(db_query('SELECT email FROM {constantcontact} WHERE email = "%s"', $email));
+
+  if($email) {
+    //update or delete user's info
+    if(!empty($mylists)) {
+      db_query('UPDATE {constantcontact} SET lists = "%s" WHERE email = "%s"', $mylists, $email);
+    }
+    else {
+      db_query('DELETE FROM {constantcontact} WHERE email = "%s" LIMIT 1', $email);
+    }
+
+  }
+  else {
+    //insert
+    db_query('INSERT INTO {constantcontact} (email, lists) VALUES ("%s", "%s")', $node['email'], $mylists);
+  }
+
+  if(user_access('administer constant contact')) {
+    $email = ($email) ? $email : $node['email'];
+    drupal_set_message(t('@mail has been added/removed from the selected mailing lists.', array('@mail' => $email)));
+  }
+  else {
+    drupal_set_message(t('You have been added/removed from the selected mailing lists. Thank you.'));
+  }
+}
+
+function _constantcontact_hash($mail) {
+  return drupal_substr(md5($mail . _constantcontact_pk()), 0, 72);
+}
+
+function _constantcontact_pk() {
+  $key = variable_get('cc_pk', FALSE);
+  if (!$key) {
+    // Generates a 32 char random string as the default key
+    $key = md5(uniqid(rand()));
+    variable_set('cc_pk', $key);
+  }
+  return $key;
+}
+
+function _constantcontact_remove() {
+  if(valid_email_address(urldecode(arg(2)))) {
+    return drupal_get_form('constantcontact_remove_form');
+  }
+  drupal_goto('node');
+}
+
+function _constantcontact_collect_data($uid) {
+  // builds the string of agruments to be passed in the url
+  $relations = _constantcontact_get_relations();
+
+  $result = db_query('SELECT f.name, v.value FROM {profile_fields} f, {profile_values} v WHERE f.fid = v.fid AND v.uid = %d', $uid);
+  while($profile = db_fetch_array($result)){
+    $profiles[$profile['name']] = $profile['value'];
+  }
+
+  $data = '';
+  foreach($profiles as $k => $v) {
+    foreach($relations as $y => $z) {
+      if($k == $z) {
+        $data .= '&'. strtolower(substr($y, 8)) .'='. urlencode($v);
+      }
+    }
+  }
+  return $data;
+}
+
+function _csv_to_array($file, $headrow) {
+
+  $relations = sort(_constantcontact_get_relations());
+  $relations = _constantcontact_get_relations();
+  ksort($relations);
+
+  $fi[0] = 'email';
+  $i = 1;
+  foreach($relations as $k => $v) {
+    if($v != '') {
+      $fi[$i] = strtolower(substr($k, 8));
+    }
+    $i++;
+  }
+
+  $fh = fopen($file, 'r');
+  $i = 0;
+  while (($data = fgetcsv($fh, 10)) !== FALSE) {
+    if($headrow == 1) {
+      // skips heading
+      $headrow = 0;
+    }
+    else {
+      foreach($fi as $k => $v) {
+        $csv_arr[$i][$v] = $data[$k];
+      }
+      $i++;
+    }
+  }
+  fclose($fh);
+  return $csv_arr;
+}
+
+function _constantcontact_get_relations() {
+  $result = db_query('SELECT * FROM variable WHERE name REGEXP "%s"', '^[0-9]{2}_cc_f_');
+  while($relation = db_fetch_array($result)){
+    $relations[$relation['name']] = unserialize($relation['value']);
+  }
+  return $relations;
+}
+
+function _constantcontact_base_data($email) {
+  $data = "loginName=" . variable_get('cc_username', '');
+  $data .= "&loginPassword=" . variable_get('cc_pass', '');;
+  $data .= "&ea=" . $email;
+  return $data;
+}
+
+function _constantcontact_cc_unsubscribe($data) {
+/**
+ * If the user unsubscribes from one list, the user will be removed
+ * completely from all Constant Contact lists, then re-subscribe to each list
+ * she is retained to or added.
+ */
+  $cc_error = FALSE;
+
+  // For details on the options here, see constantcontact_settings_submit()
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, UNSUBSCRIBE);
+  if(strstr(SUBSCRIBE, 'https')) {
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+  }
+  curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+  curl_setopt($ch, CURLOPT_POST, 1);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+  $cc_result = curl_exec($ch);
+  curl_close($ch);
+
+  $details = explode("\n", $cc_result);
+  // If return 0 then success
+  if($details[0] != '0') {
+    $cc_error = TRUE;
+    watchdog('Constant Contact', 'Unsubscribe error for user '. $row['email'] .': '. $details[1], $severity = WATCHDOG_ERROR);
+    // Debug - See constantcontact_settings_submit() for details
+    print 'Un-subscription: '. $details[0] .' - '. $details[1] .'<br>';
+    print 'Data sent '. UNSUBSCRIBE .'?'. $data;
+  }
+  return $cc_error;
+}
+
+function _constantcontact_cc_subscribe($node, $data, $lists_index, $lists_encoded, $uid) {
+  $cc_error = FALSE;
+  $i = '';
+  foreach($lists_index as $k => $list_index) {
+    if($node[$list_index] == 1) {
+      $data_add = '&ic='. $lists_encoded[$k];
+      $data_add .= _constantcontact_collect_data($uid);
+
+      // For details on the options here, see constantcontact_settings_submit()
+      $ch = curl_init();
+      curl_setopt($ch, CURLOPT_URL, SUBSCRIBE);
+      if(strstr(SUBSCRIBE, 'https')) {
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+      }
+      curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+      curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $data . $data_add);
+      $cc_result = curl_exec($ch);
+      curl_close($ch);
+
+      $i .= $data.$data_add .'<br>';
+      $details = explode("\n", $cc_result);
+      if($details[0] != '0') {
+        $cc_error = TRUE;
+        watchdog('Constant Contact', 'Subscribe error for user '. $node['email'] .': '. $details[1], $severity = WATCHDOG_ERROR);
+        // Debug - See constantcontact_settings_submit() for details
+        print 'Subscription: '. $details[0] .' - '. $details[1] .'<br>';
+        print 'Data sent '. SUBSCRIBE .'?'. $data;
+      }
+    }
+  }
+  return $cc_error;
+}
+
+function _email_autocomplete($string) {
+  $matches = array();
+  $result = db_query_range("SELECT email FROM {constantcontact} WHERE LOWER(name) LIKE LOWER('%s%%')", $string, 0, 10);
+  while ($user = db_fetch_object($result)) {
+    $matches[$user->email] = check_plain($user->email);
+  }
+  print drupal_to_js($matches);
+  exit();
+}

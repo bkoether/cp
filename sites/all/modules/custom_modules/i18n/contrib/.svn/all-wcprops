@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib
+END
+i18ntaxonomy.module
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib/i18ntaxonomy.module
+END
+i18ntaxonomy.install
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib/i18ntaxonomy.install
+END
+i18npanels.module
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib/i18npanels.module
+END
+i18nmenu.module
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib/i18nmenu.module
+END
+i18ntaxonomy.info
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib/i18ntaxonomy.info
+END
+i18n_db_update_v45_to_v46.mysql
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib/i18n_db_update_v45_to_v46.mysql
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib/README.txt
+END
+i18npanels.info
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib/i18npanels.info
+END
+i18nmenu.info
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/custom_modules/i18n/contrib/i18nmenu.info
+END

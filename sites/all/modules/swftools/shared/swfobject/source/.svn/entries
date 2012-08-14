@@ -1,0 +1,70 @@
+8
+
+dir
+721
+http://svn.dailydose.ca/dailydose.ca/tags/20111005-1/modules/swftools/shared/swfobject/source
+http://svn.dailydose.ca
+
+
+
+2008-08-27T00:48:49.326014Z
+64
+chris
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0e0cc069-df17-4a3a-be03-5ea6ad17db6b
+
+expressinstall.fla
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+d590d5dc814abf8dadc797d271c80234
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+swfobject_source.js
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+ca40f2b986f2f9dfd7151b03bda66684
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+so_tester.fla
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+8a7a09d7e77a2bba61e097c9f5554431
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+com
+dir
+

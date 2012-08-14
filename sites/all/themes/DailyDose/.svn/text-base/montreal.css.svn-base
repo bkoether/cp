@@ -1,0 +1,189 @@
+@CHARSET "UTF-8";
+
+/*
+title: DailyDose Vancouver Stylesheet
+author: Raincity Studios (Hubert)
+URL: http://www.raincitystudios.com
+start date: 21/08/07
+last changed: 21/08/07
+*/
+
+/* -- BASIC PAGE & TYPE STYLES --
+______________________________________*/
+
+body#montreal {
+  background-color:#FEF1F2;
+}
+body#montreal a#logovitaminv{
+  background:transparent url(images/header/m_logo.gif) no-repeat bottom left;
+}
+
+body#montreal #inner-wrapper {
+  border-left:1px solid #FABFC1;
+}
+
+
+/* ------ Type Styles ----------*/
+
+body#montreal a, body#montreal a:link, body#montreal a:active, body#montreal a:visited, 
+body#montreal h1.title, body#montreal .meta-block .dose-links h4, #block-block-20 li{ 
+	color: #D24150; 
+}
+body#montreal .block .more-link a{
+	border:1px solid #FABFC1;
+	padding:2px 5px;
+}
+body#montreal .block .more-link a:hover { 
+	color: #FABFC1;
+}
+body#montreal .node .content h1, body#montreal .node .content h2, body#montreal .node .content h3, body#montreal .node .content h4, body#montreal .node .content h5 {
+  color: #FABFC1;
+}
+body#montreal ul.secondary a.active{
+	border-bottom:1px solid #D24150;
+	color:#D24150;
+}
+
+
+/* ------ hold site content ----------*/
+
+body#montreal #holds-content {
+  border-bottom:1px solid #FABFC1;
+  background:#fff url(images/background/content_tile_M_bg.gif) repeat-y top right;
+}
+
+/* ------ HEADER ----------*/
+
+body#montreal #header {
+  background:transparent url(images/header/m_header.gif) no-repeat top right;
+}
+body#montreal a#login-link{
+  background:transparent url(images/header/m_login.gif) no-repeat;
+}
+body#montreal a#logout-link{
+  background:transparent url(images/header/m_logout.gif) no-repeat;
+}
+body#montreal a#subscribe-link{
+  background:transparent url(images/header/m_subscribe.gif) no-repeat;
+}
+
+/* ------ Forum Graphic ----------*/
+
+body#montreal div#block-block-20 .content h2 a{
+  background:transparent url(images/sidebar/forum_m.gif) no-repeat top left;
+}
+
+/* ----------- Top 10, Little Black book, and Steals -----------*/
+
+body#montreal a#top10{
+	background: transparent url(images/sidebar/m_top10.gif) no-repeat top left;
+}
+body#montreal a#blackbook{
+	background: transparent url(images/sidebar/m_book.gif) no-repeat top left;
+}
+body#montreal a.steals{
+	background: transparent url(images/sidebar/m_deals.gif) no-repeat top left;
+}
+
+/* ---- SITE SPECIFIC ---
+_________________________________________________ */
+
+/* ------------  DailyDose Info/Links block ----------- */
+
+body#montreal .meta-block .dose-links {
+	background: transparent url(images/content/block-bottom-montreal-logo.png) no-repeat bottom left;
+}
+* html body#montreal .meta-block .dose-links {
+	background: transparent url(images/content/block-bottom-montreal-ie6.gif) no-repeat bottom left;
+}
+
+/* ----- Category Sepcific  ----- */
+
+body#montreal form#user-register fieldset legend,
+body#montreal #myfavourites .afavourite span.topic,
+body#montreal #myfavourites .afavourite h4 {
+ 	color:#D24150;
+}
+
+/* ------------ Forum ----------- */
+
+body#montreal #forum thead{
+	background-color:#D24150;
+}
+body#montreal .post-information .submitted span{
+	color:#D24150;
+}
+body#montreal.ntype-forum .node .links{
+	background-color:#D24150;
+}
+body#montreal.ntype-forum .node .links a, body#montreal #forum thead a {
+  color:#fff;
+}
+
+/* ------------ Top 10 ----------- */
+
+body#montreal .top10-title{
+	background: transparent url(images/content/m_top10.gif) no-repeat top left;
+}
+body#montreal .taxonomy-right{
+	color:#D24150;
+}
+
+/* --------- Steals and Deals --------- */
+@CHARSET "UTF-8";
+
+body#montreal .ntype-stealsanddeals table table tr td{
+	border:1px solid #FABFC1;
+}
+body#montreal .ntype-stealsanddeals .steals-content h3{
+	color:#D24150;
+}
+
+/* ------------ Editors Blog----------- */
+
+body#montreal a.editors-blog {
+	background: transparent url(images/editorsblog/eblog_tile_m.jpg) no-repeat top left;
+}
+
+
+
+/* --------- Archive --------- */
+
+body#montreal #archive-container .archive_month li a,
+body#montreal #archive-container li.active li.active p,
+body#montreal #archive-container #archive-categories li.active{
+	color:#D24150;
+}
+/* Language Thickbox */
+#vd_Language_Selector h2 {
+	background: transparent url(/themes/DailyDose/images/montreal_modal_m.gif) no-repeat scroll left top;
+}
+
+/* ---------- Little Black Book categories listing ---------- */
+
+body#montreal div#lbb_categories {
+	padding-top: 6px;
+	height: 103px;
+	background: #74272b url(images/lbb/lbb_montreal_bg.gif) no-repeat top left;
+	width: 524px;
+}
+
+body#montreal div#lbb_categories a, body#montreal div#lbb_categories h5 {
+	color:#fff;
+}
+/* download link */
+.node .content p.downloadlink {
+  font-style:italic;
+  font-size: 18px !important;
+  margin: 10px 0pt;
+  line-height: 38px;
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+  background-image: url(images/download_m.gif);
+}
+.downloadlink a {
+  padding-left: 43px;
+  text-decoration: underline;
+  border-bottom: none !important;
+}
+

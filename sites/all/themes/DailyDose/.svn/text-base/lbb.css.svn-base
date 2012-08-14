@@ -1,0 +1,167 @@
+@charset "UTF-8";
+/* CSS Document */
+
+#lbb_body {
+	width: 525px;
+	color: #666666;
+}
+
+.clear-left {
+	clear: left;
+}
+
+#lbb_top p.lbb_heading {
+	width: 520px;
+	font-family: "Times New Roman", Times, serif;
+	font-size: 15px;
+	font-style: italic;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	line-height: 1.4em;
+	letter-spacing: -.01em;
+}
+
+div.lbb_cat {
+	margin-left: 30px; 
+}
+
+div.lbb_cat_col {
+	width: 120px;
+	float: left;
+	line-height: normal;
+}
+
+div.lbb_cat_col p {
+	margin-top: 4px;
+	margin-bottom: 8px;
+	line-height: normal;
+	padding-bottom: 0;
+}
+
+div#lbb_image_ph {
+	height: 312px;
+	background: transparent url(images/border.gif) repeat-x scroll left bottom;
+	margin-bottom: 5px;
+}
+
+div#lbb_mainimg {
+	height: 186px;
+	width: 522px;
+	overflow: hidden;
+	border-top: 1px solid #999999;
+	border-left: 1px solid #999999;
+	border-right: 1px solid #999999;
+}
+
+.main-content .node .content div.lbb_cat_col p a:link, .main-content .node .content div.lbb_cat_col p a:visited {
+	text-transform: uppercase;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight:300;
+	color: #FFFFFF;
+	text-decoration: none;
+	font-style: normal;
+}
+
+div.lbb_listing {
+	margin-right: 10px;
+	float: left;
+	margin-bottom: 20px;
+}
+
+div.lbb_subsection {
+	background: transparent url(images/border.gif) repeat-x scroll left bottom;
+	padding-bottom: 22px;
+}
+
+div.lbb_subsection table {
+	border-collapse: separate;
+}
+
+div.lbb_subsection table td {
+	width: 234px;
+	vertical-align: top;
+	padding-bottom: 20px;
+}
+
+div#lbb_categories {
+	padding-top: 6px;
+	height: 103px;
+	background: #693267 url(images/lbb/lbb_vancouver_bg.gif) no-repeat top left;
+	width: 524px;
+}
+
+div#lbb_categories h5.lbb_cat {
+	font-family: Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+	color: #FFFFFF/* !important */;
+	padding: 0 0 5px 10px;
+	margin: 0;
+	font-size: 12px;
+}
+
+div#lbb_categories a {
+	color: #FFFFFF /* !important */;
+	}
+
+div#lbb_categories a.lbb_active {
+	color: #999999;
+}
+
+
+div.lbb_subsection table td.spacer {
+	width: 10px;
+}
+
+.main-content .node h2.lbb_section {
+	margin-bottom: 30px;
+	height: 25px;
+	margin-left: 3px;
+}
+
+.node .content h3.lbb_subtitle {
+	height: 15px;
+	margin-top: 10px;
+	margin-bottom: 15px;
+	margin-left: 3px;
+}
+
+.node .content h5.lbb_listing {
+	font-family: "Times New Roman", Times, serif;
+	color: #555555;
+	font-weight: normal;
+	text-transform: uppercase;
+	font-size: 11px;
+	margin-bottom: 3px;
+	margin-top: 0;
+}
+
+.node .content div.lbb_listing p {
+	font-family: "Times New Roman", Times, serif;
+	font-size: 14px;
+	margin-top: 6px;
+	margin-bottom: 2px;
+	line-height: 1.1em;
+	padding-bottom: 2px;
+}
+
+.node .content div.lbb_listing div.lbb_info {
+	margin-top: 8px;
+	font-family: Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+	letter-spacing: .1em;
+	font-size: 10px;
+	line-height: 1.3em;
+}
+
+.node .content div.lbb_name {
+	color: #A6519B;
+}
+
+div.back-to-top {
+	float: right;
+}
+
+.geo {
+  display: none;
+}

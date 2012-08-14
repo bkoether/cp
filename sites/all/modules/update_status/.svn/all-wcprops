@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/update_status
+END
+update_status.info
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/update_status/update_status.info
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/update_status/LICENSE.txt
+END
+screenshot.png
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/update_status/screenshot.png
+END
+CHANGELOG.txt
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/update_status/CHANGELOG.txt
+END
+update_status.module
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/update_status/update_status.module
+END
+update_status.install
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/update_status/update_status.install
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/update_status/README.txt
+END
+update_status.css
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/update_status/update_status.css
+END

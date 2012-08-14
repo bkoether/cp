@@ -1,0 +1,105 @@
+#archive-container a,
+#archive-container p {
+  font-size:11px;
+}
+#archive-container ul {
+  margin: 0;
+  padding: 0;
+}
+#archive-container ul ul ul{
+  padding: 4px 0 20px 10px;
+}
+#archive-container li {
+	padding:5px 0;
+  background: transparent url(images/border.gif) repeat-x bottom left;
+}
+#archive-container li.active li.active{
+	padding-bottom:15px;
+  background: transparent url(images/border.gif) repeat-x bottom left;
+}
+#archive-container li.active {
+	padding:4px 0 1px;
+  background: none;
+}
+#archive-container li p,
+#archive-container .archive_year li a{
+	color:#444;
+	font:17px arial, sans-serif;
+	letter-spacing:2px;
+	padding:7px 0 10px;
+}
+#archive-container .archive_month li a,
+#archive-container li.active li.active p{
+	padding-bottom:4px;
+	font:normal 11px Arial,Lucida,Helvetica,sans-serif;
+}
+#archive-container li.active li.active p{
+	font-weight:bold;
+	padding-bottom:6px;
+}
+#archive-container .archive_year {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+#archive-container .archive_year p {
+  background: transparent url(images/border.gif) repeat-x bottom left;
+}
+#archive-container .archive_month p {
+  background: none;
+  padding-top:4px;
+}
+.archive_year .archive_month,
+.archive_year .archive_month .archive_day {
+  font-size:12px;
+  font-weight: normal;
+}
+#archive-container #archive-categories li.active{
+	font-size:11px;
+	font-weight:bold;
+	padding-left:2px;
+}
+#archive-container #archive-categories {
+  background: transparent url(images/border.gif) repeat-x bottom left;
+  padding-bottom: 20px;
+}
+#archive-container #archive-categories li {
+  background: none;
+  margin-left: 2em;
+	padding:4px 0;
+}
+#archive-container #archive-categories li a{
+	text-decoration:underline;
+}
+#archive-container dt {
+	font-size:10px;
+  float:left;
+}
+#archive-container dd {
+	padding:2px 0;
+  margin-left:24px;
+}
+#inner-main #archive-container dd.archive_day_category{
+	font-size:10px;
+	text-transform:uppercase;
+}
+#inner-main #archive-container dd.archive_day_title a{
+	font-size:12px;
+}
+#archive-container dd.archive_day_category {
+	font:normal 11px Arial,Lucida,Helvetica,sans-serif;
+	padding:1px 0 0;
+}
+#archive-container dd.archive_day_annotation {
+	text-transform:uppercase;
+	padding-top:0px;
+	font-size:10px;
+	font-style:italic;
+	color:#5A5A5A;
+  margin-bottom: 1em;
+}
+
+/*  Search Results */
+
+.search-results	.search-info{
+	display:none;
+}

@@ -1,0 +1,4 @@
+name = Related Nodes
+description = "Related Nodes provides nodes related by tags, it's Vitamin Daily specific"
+version = 0.1
+package = Vitamin

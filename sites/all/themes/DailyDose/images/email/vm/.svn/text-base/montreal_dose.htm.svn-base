@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+	"http://www.w3.org/TR/html4/loose.dtd">
+<!-- Created by Ryan Ilg - http://ryanilg.com - 2007-08-20 -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<title>VitaminM.ca - Your Daily Dose</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta name="Language" content="English" />
+		<meta name="Author" content="Ryan Ilg - http://www.ryanilg.com" />
+		<link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico" />
+		<style type="text/css" media="screen">
+		body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,blockquote,th,td { margin:0; padding:0; } 
+		table { border-collapse:collapse; border-spacing:0; } 
+		fieldset,img { border:0; } 
+		address,caption,cite,code,dfn,em,strong,th,var { font-style:normal; font-weight:normal; } 
+		ol,ul { list-style:none; } caption,th { text-align:left; }
+		h1,h2,h3,h4,h5,h6 { font-size:100%; font-weight:normal; }
+		q:before,q:after { content:''; }
+		abbr,acronym { border:0; }
+		hr, table[padding="0"] { display: none; }
+			
+				a         { color: #BF545B; }
+				a:visited { color: #A54951; }
+				a:hover   { color: #733339; }
+   			a:active  { color: #A54951; }
+				strong { font-weight: bold; }
+				p {
+				  padding: 0 12px 5px 0;
+					font:normal 14px/18px 'Times New Roman', serif;
+					}
+				}
+				p.dose-intro {
+				  text-transform: uppercase;
+				  line-height: 18px;
+				  font-size: 10px;
+				  letter-spacing: .12em;
+				  padding: 0;
+				  margin-bottom: 8px;
+				}
+				p.dose-info {
+				  font-family: Arial, Lucida, Helvetica, sans-serif !important;
+				  line-height: 1.3em;
+				  font-size: 1.2em;
+				  margin: 0 0 2px 0;
+				  padding: 0;
+				  color: #666;
+				  font-size: 12px;
+				}
+				#meta-block {
+				  margin:0;
+				  padding: 0;
+				  font-size: 10px;
+				  letter-spacing:0.09em;
+				  text-transform:uppercase;
+				  width:164px;
+				}
+
+				#meta-block h4 {
+				  padding: 0px 0 5px 10px;
+				  margin: 0;
+				  font-weight:normal;
+				  font-size:12px;
+				  color: #BF545B;
+				}
+				#meta-block h5 {
+				  background: transparent url(http://209.31.179.106/sites/default/themes/DailyDose/images/border.gif) repeat-x top left;
+				  text-transform:uppercase;
+				  font-weight:normal;
+				  padding: 8px 5px 0 0px;
+				  margin: 0 8px 0 10px;
+				  color: #444444;
+				  font-size: 9px;
+				}
+				#meta-block h5 a {
+				  background: transparent url(http://209.31.179.106/sites/default/themes/DailyDose/images/border.gif) repeat-x top left;
+				  text-transform:uppercase;
+				  font-weight:normal;
+				  text-decoration: none;
+				  padding: 8px 0 0 0px;
+				  margin: 0 8px 0 10px;
+				  color: #444444;
+				}
+				#meta-block a {
+				  text-decoration: underline;
+				}
+
+				#meta-block .links ul {
+				  padding:0 0 10px;
+				}
+				#meta-block .links ul li{
+				  padding:0 0 0 15px;	
+				}
+				#meta-block .links ul li a {
+				  font-size:9px;
+					padding:0 7px 0 0;
+				  font-weight:normal;
+				}
+				#meta-block p {
+				  font-style: italic;
+				  font-family: georgia, times, serif;
+				  text-transform:capitalize;
+				  margin:2px 15px 0;
+				  font-size: 11px;
+					line-height:14px;
+				}
+				#meta-block p a{
+					text-decoration:none;
+					color:#888 !important;
+				  font-size:9px;
+				}
+				</style>
+
+	</head>
+	<body style="background-color: #FEF3F4;">
+		<table width="100%" style="background-color: #FEF3F4; width: 100%;">
+			<tr>
+				<td align="center">
+					<div style="font: 12px/1.5 Arial, Verdana, Tahoma, sans-serif; text-align: left; width: 536px; color: #686868;">
+						<div style="width: 356px; border: 1px solid #FDE1E2; margin-top: 11px; background: #FFF url('http://clients.ryanilg.com/dd/emails/images/pattern_top.gif') top right no-repeat; background-color: #FFF;">
+							<div style="padding: 22px 12px 7px;">
+								<table style="height: 21px; border-bottom: 1px solid #FCD2D4;" width="100%">
+
+									<tr>
+										<td><h1 style="padding-bottom: 5px;"><a style="width: 162px; height: 21px;" href="http://vitaminm.ca"><img src="http://clients.ryanilg.com/dd/emails/vm/logo.gif" alt="VitaminM.ca" /></a></h1></td>
+										<td ><h2 style="width: 140px; height: 13px;" class="d"><img src="http://clients.ryanilg.com/dd/emails/images/type_d.gif" alt="Your Daily Dose" /></h2></td>
+									</tr>
+								</table>
+							</div>
+												<table>
+						<tr>
+							<td valign="top" align="left" style="color: #686868;">
+
+								<div style="padding: 10px 12px 0;">
+									
+									<!-- Image Goes Here  -->
+									%TOPIMG%
+
+									<div style="width: 343px; background: #FFF url('http://clients.ryanilg.com/dd/emails/images/pattern_mid.gif') top right no-repeat;">
+
+									<!-- Page Content Goes here :: Date :: Tile :: Body  -->
+									<h3 style="padding-top: 12px; text-transform: uppercase; font-size: 10px; color: #7D7D7D;">%DATE%</h3>
+
+									<h2 style="padding: 0px 0 10px; letter-spacing: 0.75px; text-transform: uppercase; font-size: 14px; color: #BF545B;">%TITLE%</h2>
+
+									%BODY%
+
+									<br />
+									<!-- Meta Data Goes Here -->
+									<div id="meta-block" style="width: 161px; padding: 0; background: url(http://209.31.179.106/sites/default/themes/DailyDose/images/content/block-top-ie6.gif) no-repeat top left; overflow: hidden;">
+										<div id="inner-meta-1" style=" margin-top: 9px; padding: 0px 0 20px 0; background: url(http://209.31.179.106/sites/default/themes/DailyDose/images/content/block-bottom-montreal-ie6.gif) no-repeat bottom left;">
+												%METABLOCK%
+										</div>
+									</div>
+
+										<a style="width: 336px; height: 31px; display: block; padding: 17px 0 6px;" href="http://www.vitaminm.ca/user/register"><img src="http://clients.ryanilg.com/dd/emails/vm/subscribe.gif" alt="Did a Friend Send This To You? Subscribe." /></a>
+									</div>
+								</div>
+							</td>
+							<td valign="top" align="left">
+								<div style="padding-top: 10px; width: 160px;">
+									
+									<!--- Ad Code Goes Here -->
+									<A HREF="http://ad.ca.doubleclick.net/jump/N4034.vitamin/B2394976.4;sz=160x600;ord=123456789?">
+									<IMG SRC="http://ad.ca.doubleclick.net/ad/N4034.vitamin/B2394976.4;sz=160x600;ord=123456789?" BORDER=0 WIDTH=160 HEIGHT=600 ALT="Click Here"></A>
+										
+																
+								</div>
+							</td>
+						</tr>
+					</table>						</div>
+
+						<div style="width: 356px; padding: 7px 0 50px; font-size: 9px;">
+							<table style="text-transform: uppercase; width: 100%; font-size: 9px;">
+								<tr>
+									<td style="text-align: left;"><a href="http://vitaminm.ca/" style="color: #BF545B;">www.vitaminm.ca</a></td>
+									<td style="text-align: center;"><a href="http://vitaminm.ca/cclists/unsubscribe" style="color: #BF545B;">Unsubscribe</a></td>
+									<td style="text-align: center;"><a href="http://vitaminm.ca/privacy-policy" style="color: #BF545B;">Privacy Policy</a></td>
+									<td style="text-align: right;"><a href="http://vitaminm.ca/terms-of-use" style="color: #BF545B;">Terms Of Use</a></td>
+
+								</tr>
+							</table>
+							<p style="padding-top: 5px;">Tip: add us to your address book to ensure each dose arrives</p>
+							<p><a href="http://vitaminm.ca/" style="color: #BF545B;">&copy; 2007 daily dose media inc.</a></p>
+						</div>
+					</div>
+				</td>
+
+			</tr>
+		</table>
+	</body>
+</html>

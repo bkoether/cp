@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/location/contrib/location_search
+END
+location_search.module
+K 25
+svn:wc:ra_dav:version-url
+V 106
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/location/contrib/location_search/location_search.module
+END
+location_search.install
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/location/contrib/location_search/location_search.install
+END
+API.txt
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/location/contrib/location_search/API.txt
+END
+location_search.info
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/location/contrib/location_search/location_search.info
+END
+search-result-location.tpl.php
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/location/contrib/location_search/search-result-location.tpl.php
+END
+location_search.admin.inc
+K 25
+svn:wc:ra_dav:version-url
+V 109
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/location/contrib/location_search/location_search.admin.inc
+END
+search-results-location.tpl.php
+K 25
+svn:wc:ra_dav:version-url
+V 115
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/location/contrib/location_search/search-results-location.tpl.php
+END

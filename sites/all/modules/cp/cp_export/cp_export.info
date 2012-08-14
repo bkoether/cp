@@ -1,0 +1,4 @@
+name = CP Export
+description = "Exports nodes to FTP"
+version = 1.0
+package = Vitamin

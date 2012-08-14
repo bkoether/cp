@@ -1,0 +1,239 @@
+@CHARSET "UTF-8";
+
+/*
+title: DailyDose Montréal (French) Stylesheet
+author: netSIGN communications
+URL: http://netsign.com
+start date: 21/08/07
+last changed: 20081027
+*/
+
+/* -- BASIC PAGE & TYPE STYLES --
+______________________________________*/
+
+body#montreal_fr {
+  background-color:#FEF1F2;
+}
+body#montreal_fr a#logovitaminv{
+  background:transparent url(images/header/mfr_logo.gif) no-repeat bottom left;
+}
+
+body#montreal_fr #inner-wrapper {
+  border-left:1px solid #FABFC1;
+}
+
+
+/* ------ Type Styles ----------*/
+
+body#montreal_fr a, body#montreal_fr a:link, body#montreal_fr a:active, body#montreal_fr a:visited, 
+body#montreal_fr h1.title, h2.title-full, body#montreal_fr .meta-block .dose-links h4, #block-block-20 li{ 
+	color: #D24150; 
+}
+body#montreal_fr .block .more-link a{
+	border:1px solid #FABFC1;
+	padding:2px 5px;
+}
+body#montreal_fr .block .more-link a:hover { 
+	color: #FABFC1;
+}
+body#montreal_fr .node .content h1, body#montreal_fr .node .content h2, body#montreal_fr .node .content h3, body#montreal_fr .node .content h4, body#montreal_fr .node .content h5 {
+  color: #FABFC1;
+}
+body#montreal_fr ul.secondary a.active{
+	border-bottom:1px solid #D24150;
+	color:#D24150;
+}
+
+
+/* ------ hold site content ----------*/
+
+body#montreal_fr #holds-content {
+  border-bottom:1px solid #FABFC1;
+  background:#fff url(images/background/content_tile_M_bg.gif) repeat-y top right;
+}
+
+/* ------ HEADER ----------*/
+
+body#montreal_fr #header {
+  background:transparent url(images/header/mfr_header.gif) no-repeat top right;
+}
+body#montreal_fr a#login-link{
+  background:transparent url(images/header/m_fr_login.gif) no-repeat;
+}
+body#montreal_fr a#logout-link{
+  background:transparent url(images/header/m_fr_logout.gif) no-repeat;
+}
+body#montreal_fr a#subscribe-link{
+  background:transparent url(images/header/mfr_subscribe.gif) no-repeat;
+}
+a#login-link{
+	width:93px !important;
+}
+a#logout-link{
+  height:13px !important;
+  width:110px !important;
+}
+/* ------ Forum Graphic ----------*/
+
+body#montreal_fr div#block-block-20 .content h2 a{
+  background:transparent url(images/sidebar/mfr_forum.gif) no-repeat top left;
+}
+
+/* ----------- Top 10, Little Black book, and Steals -----------*/
+
+body#montreal_fr a#top10{
+	background: transparent url(images/sidebar/mfr_top10.gif) no-repeat top left;
+}
+body#montreal_fr a#blackbook{
+	background: transparent url(images/sidebar/mfr_book.gif) no-repeat top left;
+}
+body#montreal_fr a.steals{
+	background: transparent url(images/sidebar/mfr_deals.gif) no-repeat top left;
+}
+
+/* ---- SITE SPECIFIC ---
+_________________________________________________ */
+
+/* ------------  DailyDose Info/Links block ----------- */
+
+body#montreal_fr .meta-block .dose-links {
+	background: transparent url(images/content/block-bottom-montreal-logo.png) no-repeat bottom left;
+}
+* html body#montreal_fr .meta-block .dose-links {
+	background: transparent url(images/content/block-bottom-montreal-ie6.gif) no-repeat bottom left;
+}
+
+/* ----- Category Sepcific  ----- */
+
+body#montreal_fr form#user-register fieldset legend,
+body#montreal_fr #myfavourites .afavourite span.topic,
+body#montreal_fr #myfavourites .afavourite h4 {
+ 	color:#D24150;
+}
+
+/* ------------ Forum ----------- */
+
+body#montreal_fr #forum thead{
+	background-color:#D24150;
+}
+body#montreal_fr .post-information .submitted span{
+	color:#D24150;
+}
+body#montreal_fr.ntype-forum .node .links{
+	background-color:#D24150;
+}
+body#montreal_fr.ntype-forum .node .links a, body#montreal_fr #forum thead a {
+  color:#fff;
+}
+
+/* ------------ Top 10 ----------- */
+
+body#montreal_fr .top10-title{
+	background: transparent url(images/content/m_top10.gif) no-repeat top left;
+}
+body#montreal_fr .taxonomy-right{
+	color:#D24150;
+}
+
+/* --------- Steals and Deals --------- */
+
+body#montreal_fr .ntype-stealsanddeals table table tr td{
+	border:1px solid #FABFC1;
+}
+body#montreal_fr .ntype-stealsanddeals .steals-content h3{
+	color:#D24150;
+}
+
+/* ------------ Editors Blog----------- */
+
+body#montreal_fr a.editors-blog {
+	background: transparent url(images/editorsblog/mfr_editors.gif) no-repeat top left;
+}
+
+
+
+/* --------- Archive --------- */
+
+body#montreal_fr #archive-container .archive_month li a,
+body#montreal_fr #archive-container li.active li.active p,
+body#montreal_fr #archive-container #archive-categories li.active{
+	color:#D24150;
+}
+/* Language Thickbox */
+#vd_Language_Selector h2 {
+	background: transparent url(/themes/DailyDose/images/montreal_modal_m_fr.gif) no-repeat scroll left top;
+}
+
+/* ---------- Little Black Book categories listing ---------- */
+
+body#montreal_fr div#lbb_categories {
+	padding-top: 6px;
+	height: 103px;
+	background: #74272b url(images/lbb/lbb_montreal_bg.gif) no-repeat top left;
+	width: 524px;
+}
+
+body#montreal_fr div#lbb_categories a, body#montreal_fr div#lbb_categories h5 {
+	color:#fff;
+}
+/* download link */
+.node .content p.downloadlink {
+  font-style:italic;
+  font-size: 18px !important;
+  margin: 10px 0pt;
+  line-height: 38px;
+  background-repeat: no-repeat;
+  background-position: 0 50%;
+  background-image: url(images/download_m_fr.gif);
+}
+.downloadlink a {
+  padding-left: 43px;
+  text-decoration: underline;
+  border-bottom: none !important;
+}
+
+/*
+=============================================================
+
+SOCIAL SPRITES
+
+=============================================================
+*/
+
+/*
+============
+MONTREAL
+============
+*/
+
+#subscription-form #submit {
+    background-color: #ee858b !important;
+}
+
+#subscription-form #submit:hover {
+    background-color: #774949 !important;
+}
+
+#subscription-form #email {
+    border: 1px solid #ee858b !important;
+    color: #ee858b !important;
+}
+#subscription-form #email:focus {
+    color: #774949 !important;
+}
+
+#social-facebook { /* NEW DECLARATION */
+background-image: url(images/mon-fb.png);
+}
+
+#social-pintrest { /* NEW DECLARATION */
+background-image: url(images/mon-pin.png);
+}
+
+#social-twitter { /* NEW DECLARATION */
+background-image: url(images/mon-twit.png);
+}
+
+#social-appstore { /* NEW DECLARATION */
+background-image: url(images/mon-app.png);
+}

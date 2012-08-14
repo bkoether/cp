@@ -1,0 +1,133 @@
+8
+
+dir
+721
+http://svn.dailydose.ca/dailydose.ca/tags/20111005-1/modules/tinymce/tinymce/jscripts/tiny_mce/plugins
+http://svn.dailydose.ca
+
+
+
+2011-03-22T20:06:59.631593Z
+691
+erik
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0e0cc069-df17-4a3a-be03-5ea6ad17db6b
+
+media
+dir
+
+insertdatetime
+dir
+
+noneditable
+dir
+
+inlinepopups
+dir
+
+emotions
+dir
+
+iespell
+dir
+
+save
+dir
+
+advhr
+dir
+
+layer
+dir
+
+advimage
+dir
+
+preview
+dir
+
+directionality
+dir
+
+zoom
+dir
+
+visualchars
+dir
+
+devkit
+dir
+
+cleanup
+dir
+
+autosave
+dir
+
+table
+dir
+
+advlink
+dir
+
+print
+dir
+
+flash
+dir
+
+nonbreaking
+dir
+
+fullpage
+dir
+
+style
+dir
+
+searchreplace
+dir
+
+fullscreen
+dir
+
+contextmenu
+dir
+
+template
+dir
+
+readme.txt
+file
+
+
+
+
+2011-10-06T07:01:11.000000Z
+b7ebe9c943f635853a60c4b37200ba11
+2011-03-22T20:06:59.631593Z
+691
+erik
+
+paste
+dir
+
+bbcode
+dir
+
+xhtmlxtras
+dir
+

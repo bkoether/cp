@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date
+END
+date_api.info
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/date_api.info
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/LICENSE.txt
+END
+INSTALL.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/INSTALL.txt
+END
+date.css
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/date.css
+END
+CHANGELOG.txt
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/CHANGELOG.txt
+END
+date_api_ical.inc
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/date_api_ical.inc
+END
+date_api.module
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/date_api.module
+END
+date_api_elements.inc
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/date_api_elements.inc
+END
+date_api.install
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/date_api.install
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/README.txt
+END
+date_api_sql.inc
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/date/date_api_sql.inc
+END

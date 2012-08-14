@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NewsML>
+  <Catalog Href="http://www.iptc.org/NewsML/catalog/catalog.IptcMasterCatalog.xml" />
+  <NewsEnvelope>
+    <DateAndTime>2012-07-13T12:50:20-04:00</DateAndTime>
+  </NewsEnvelope>
+  <NewsItem>
+    <Identification>
+      <NewsIdentifier>
+        <ProviderId>vitamindaily.com</ProviderId>
+        <DateId>20120713</DateId>
+        <NewsItemId>21030</NewsItemId>
+        <RevisionId PreviousRevision="0" Update="N">0</RevisionId>
+        <PublicIdentifier>urn:newsml:vitamindaily.com:20120713:21030:0</PublicIdentifier>
+      </NewsIdentifier>
+    </Identification>
+    <NewsManagement>
+      <NewsItemType FormalName="News" Scheme="NewsItemType" />
+      <FirstCreated>2012-07-13T12:50:16-04:00</FirstCreated>
+      <ThisRevisionCreated>2012-07-13T12:50:20-04:00</ThisRevisionCreated>
+      <Status FormalName="Usable" Scheme="IptcStatus" />
+      <Urgency FormalName="4" Scheme="IptcUrgency" />
+    </NewsManagement>
+    <NewsComponent>
+      <NewsLines>
+        <HeadLine>Like a Rolling Stone</HeadLine>
+        <HeadLineShort>Like a Rolling Stone</HeadLineShort>
+        <ByLine>Vitamin Daily</ByLine>
+        <DateLine>at 8:00 on July 13, 2012</DateLine>
+        <CopyrightLine>Daily Dose Media, 2012</CopyrightLine>
+        <SlugLine>Fifty years of sex, drugs and rock 'n'  roll is quite an accomplishment.</SlugLine>
+        <KeywordLineService></KeywordLineService>
+        <KeywordLineContent></KeywordLineContent>
+      </NewsLines>
+      <AdministrativeMetadata>
+        <Source>
+          <Party FormalName="VD" Scheme="Provider" />
+        </Source>
+      </AdministrativeMetadata>
+      <DescriptiveMetadata>
+        <Language FormalName="en" Scheme="Language" />
+        <SubjectCode>
+          <SubjectMatter FormalName="national" />
+          <SubjectMatter FormalName="music" />
+        </SubjectCode>
+      </DescriptiveMetadata>
+      <ICopyrightdata>
+        <doc-id regsrc="VD" id-string="21030" />
+        <doc.rights owner="http://www.vitamindaily.com" agent="http://license.icopyright.net" type="online,reprint" />
+        <doc.copyright year="2012" holder="Daily Dose Media. All rights reserved." />
+      </ICopyrightdata>
+      <ContentItem>
+        <DataContent>
+          <CPOnlineFile Type="FullStory">
+            <CPLink Type="StoryPhoto" Number="1" SourceFilePath="./21030_1.jpg" SourceHeight="252" SourceWidth="400" Caption="Mick and  Bianca's wedding photo" />
+            <CPLink Type="StoryPhoto" Number="2" SourceFilePath="./21030_2.jpg" SourceHeight="252" SourceWidth="400" Caption="Keith's family portrait" />
+            <CPLink Type="StoryPhoto" Number="2" SourceFilePath="./21030_3.jpg" SourceHeight="180" SourceWidth="240" Caption="50 Years: The Rolling Stones – Views from the Inside, Views from the Outside" />
+            <CPStory>
+              <CPStoryPara Number="1">Fifty years of sex, drugs and rock 'n'  roll is quite an accomplishment.</CPStoryPara>
+
+              <CPStoryPara Number="2">Through the marriages and mayhem, Mick kept strutting and Keith kept smoking. There's an archive of old black-and-white photos that chronicle what has to be the longest rock-band journey ever in the new book 50 Years: The Rolling Stones. My favourites are Mick and  Bianca's wedding photo and Keith's family portrait.</CPStoryPara>
+              <CPStoryPara Number="3">The English boys are still kicking, and Mick looked as devilish as ever on the arm of L'Wren Scott at this year's Met Gala.</CPStoryPara>
+              <CPStoryPara Number="4">As for Keith, well, we're sure he's still puffing away.</CPStoryPara>
+              <CPStoryPara Number="5">50 Years: The Rolling Stones – Views from the Inside, Views from the Outside</CPStoryPara>
+            </CPStory>
+          </CPOnlineFile>
+        </DataContent>
+      </ContentItem>
+    </NewsComponent>
+  </NewsItem>
+</NewsML>

@@ -1,0 +1,106 @@
+body {
+  font-family: Arial, Lucida, Helvetica, sans-serif;
+  font-size: 12px;
+  padding: 0;
+  margin: 0;
+  color: black;
+  background: #eee;
+}
+
+
+/* ------ Heading Styles ----------*/
+
+h1 { font-size: 1.3em; }
+h2 { font-size: 1.1em; }
+h3 { font-size: 1em; font-weight: bold;}
+h4, h5, h6 { font-size: 0.9em; font-weight: bold;}
+h1, h2, h3, h4, h5, h6 {
+}
+h3.form-title {
+  text-align: left;
+}
+
+/* ------ Type Styles ----------*/
+
+p {
+  padding: 0 0 0.5em 0;
+  margin: 0;
+  text-indent: 0;
+  font-size: 1em;
+  line-height: 1.3em;
+}
+pre {
+  padding: 0.75em 1.5em;
+  font-size: 12px;
+}
+
+blockquote {
+  margin: 0.5em 1em;
+  padding: 0.3em;
+  font-style: italic;
+}
+code {
+  font-size: 1em;
+  font-family: Profont, 'lucida console', 'Courier New', Monaco, monospace;
+}
+
+/* --- Dose type styles ---*/
+/*
+body .daily-dose .content {
+  font-family: times, serif;
+  font-size: 1.1em;
+}
+
+body .daily-dose .content .dose-intro {
+  text-transform: uppercase;
+  line-height: 1.2em;
+  font-size: 1em;
+}
+body .daily-dose .content .dose-info {
+  font-family: Arial, Lucida, Helvetica, sans-serif;
+  line-height: 1.2em;
+  font-size: 1em;
+}
+*/
+
+p {
+  color: #1A1A1A;
+  font-family:georgia,times,serif;
+  font-size:13px;
+}
+p.dose-intro {
+  font-size:10px;
+  letter-spacing:0.12em;
+  line-height:18px;
+  margin-bottom:8px;
+  padding:0;
+  text-transform:uppercase;
+}
+p.dose-info {
+  color:#666666;
+  font-family:Arial,Lucida,Helvetica,sans-serif !important;
+  font-size:12px;
+  line-height:1.3em;
+  margin:0 0 2px;
+  padding:0;
+}
+
+.floatright {
+  float: right;
+  padding: 3px;
+}
+.floatleft {
+  float: left;
+  padding: 3px;
+}
+.floatrightborder {
+  float: right;
+  padding: 3px;
+  border: 1px solid #ccc;
+}
+.floatleftborder {
+  float: left;
+  padding: 3px;
+  border: 1px solid #ccc;
+}
+

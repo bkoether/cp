@@ -1,0 +1,10 @@
+name = i18n - panels
+description = Supports translatable custom panel entries
+dependencies = i18n panels
+package = Multilanguage - i18n
+
+; Information added by drupal.org packaging script on 2010-03-03
+version = "5.x-2.6"
+project = "i18n"
+datestamp = "1267638611"
+

@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/LICENSE.txt
+END
+token.module
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/token.module
+END
+CHANGELOG.txt
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/CHANGELOG.txt
+END
+token.install
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/token.install
+END
+token_taxonomy.inc
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/token_taxonomy.inc
+END
+token_user.inc
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/token_user.inc
+END
+API.txt
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/API.txt
+END
+token.inc
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/token.inc
+END
+token_cck.inc
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/token_cck.inc
+END
+token.info
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/token.info
+END
+token_comment.inc
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/token_comment.inc
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/README.txt
+END
+token_node.inc
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/token/token_node.inc
+END

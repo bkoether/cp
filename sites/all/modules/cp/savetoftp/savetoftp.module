@@ -1,0 +1,357 @@
+<?php
+// $Id: savetoftp.module,v 1.8 2009/04/30 08:41:33 anarchman Exp $
+
+/** 
+  * @file
+  * Handles saving nodes to a FTP server as html pages.
+  * Adds text boxes for logging into FTP server in order to save. 
+  */
+/**
+ * Implementation of hook_perm().
+ */
+function savetoftp_perm() {
+  return array('save to ftp');
+}
+
+  /** ftp submit form */
+function _savetoftp_form() {
+  $form['#prefix'] = t('<h2>FTP Server Settings for saving a file a FTP server</h2><strong>You must save any changes FIRST before publishing to the FTP server or your changes might be lost</strong>');
+  $form['ftp_server'] = array(
+      '#type' => 'textfield',
+      '#default_value' => check_plain(variable_get('ftp_server', '')),
+      '#maxlength' => 50,
+      '#description' => t('Enter your FTP Server'),
+    );
+  $form['ftp_user'] = array(
+      '#type' => 'textfield',
+      '#default_value' => check_plain(variable_get('ftp_username', '')),
+      '#maxlength' => 50,
+      '#description' => t('Enter your FTP Username'),
+    );
+  $form['ftp_pass'] = array(
+      '#type' => 'password',
+      '#default_value' => check_plain(variable_get('ftp_password', 0)),
+      '#maxlength' => 50,
+    '#size' => 15,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#description' => t('Enter your FTP Password'),
+    );
+  $form['ftp_direct'] = array(
+      '#type' => 'textfield',
+      '#default_value' => check_plain(variable_get('ftp_directory', '')),
+      '#maxlength' => 50,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#description' => t('Enter your default directory, this will most likely be public_html or blank'),
+    );
+  $form['ftp_default1'] = array (
+      '#type' => 'checkbox',
+    '#default_value' => variable_get('ftp_default1', 1),
+    '#description' => t('Check here if you would like to use the default html and css from your theme')
+  );  
+  $form['submit'] = array(
+  '#type' => 'submit',
+  '#value' => t('Submit'),
+  );
+  $form['cancel'] = array(
+  '#type' => 'markup',
+  '#value' => '<button type="button" onclick="document.getElementById(\'ftp1\').style.display = \'none\'">Cancel</button>',
+  );
+  return $form;
+}
+
+  /** ftp delete form */
+function _deleteftp_form() {
+  $form['#prefix'] = t('<h2>FTP Server Settings for deleting a file from the FTP server</h2>');
+  $form['ftp_server1'] = array(
+      '#type' => 'textfield',
+      '#default_value' => check_plain(variable_get('ftp_server1', '')),
+      '#maxlength' => 50,
+      '#description' => t('Enter your FTP Server'),
+    );
+  $form['ftp_user1'] = array(
+      '#type' => 'textfield',
+      '#default_value' => check_plain(variable_get('ftp_username1', '')),
+      '#maxlength' => 50,
+      '#description' => t('Enter your FTP Username'),
+    );
+  $form['ftp_pass1'] = array(
+      '#type' => 'password',
+      '#default_value' => check_plain(variable_get('ftp_password1', 0)),
+      '#maxlength' => 50,
+    '#size' => 15,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#description' => t('Enter your FTP Password'),
+    );
+  $form['ftp_direct1'] = array(
+      '#type' => 'textfield',
+      '#default_value' => check_plain(variable_get('ftp_directory1', '')),
+      '#maxlength' => 50,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#description' => t('Enter your default directory, this will most likely be public_html or blank'),
+    );
+
+  $form['submit'] = array(
+  '#type' => 'submit',
+  '#value' => t('Submit'),
+  );
+  $form['cancel'] = array(
+  '#type' => 'markup',
+  '#value' => '<button type="button" onclick="document.getElementById(\'ftp2\').style.display = \'none\'">Cancel</button>',
+  );
+  return $form;
+}
+/**
+ * Implementation of hook_submit().
+ * Publish a node to an ftp server based on form values.
+ */
+function _savetoftp_form_submit($form_id, $form_values) {
+  $node_id = arg(1);
+  if (is_numeric($node_id)) {
+    $node = node_load($node_id);
+  }
+  $file_path = file_directory_path();
+  $file_place = $file_path .'/'. $html_name;
+  
+  if ($node->path) {
+    $html_file_name = basename($node->path);
+    if(dirname($node->path) != '.') {
+      $html_place = '/'.dirname($node->path);
+	  $html_place_noslash = dirname($node->path);
+    }
+    //create a folder savetoftp to put the directory in
+	$savetoftp_file_dir = file_create_path(file_directory_path().'/savetoftp');
+    file_check_directory($savetoftp_file_dir, 1);
+    $export_path = file_directory_path().'/savetoftp'.$html_place;
+    file_check_directory($export_path, 1);
+  $html_ftp_default = $form_values['ftp_default1'];  
+  if ($html_ftp_default == 1) {
+    //savetoftp_create_local_files($node);
+  } else {
+    $html_title = check_plain($node->title);
+    $html_name = $node->path;
+    $html_name = check_plain(str_replace(" ", "", $html_name));  
+    /** the primary  navigation */
+    $html_primary_links = menu_primary_links();
+    $html_navigation = theme_menu_links($html_primary_links);  
+    $html_header_before_title = variable_get('savetoftp_header', '');
+    $html_header_after_title = variable_get('savetoftp_header2', '');
+    $html_header = $html_header_before_title . $html_title . $html_header_after_title;
+    $html_nav = '<div id="nav">'. $html_navigation .'</div>';
+    if (variable_get('savetoftp_date', 0)) {
+      $html_date = '<br /><p class="small">Last update: '. date('F d, Y') .'</p>';
+    }
+    $html_body = $node->body . $html_date;
+    $html_footer = variable_get('savetoftp_footer', '');
+	$file = fopen($export_path, "w");
+	if(!fwrite($file, $html_header)) {
+	  drupal_set_message('Unable to write to local file');
+	  return;
+	}  
+    fwrite($file, $html_navigation);
+    fwrite($file, $html_body);
+    fwrite($file, $html_footer);
+    fclose($file);
+    set_time_limit(0);
+  }
+  
+  $ftp_server = check_plain($form_values['ftp_server']);
+  $ftp_uname = check_plain($form_values['ftp_user']);
+  $ftp_pass = check_plain($form_values['ftp_pass']);
+  $ftp_directory = check_plain($form_values['ftp_direct']);
+  if (!$fp = ftp_connect($ftp_server, 21, 30)) {
+    drupal_set_message('Connection failed');
+	return;
+  }
+  if (!ftp_login($fp, $ftp_uname, $ftp_pass)) {
+    drupal_set_message('Login failed');
+	return;
+  }
+  if (!ftp_chdir($fp, $ftp_directory)) {
+    drupal_set_message('Unable to change directory to: '. $ftp_directory);
+	return;
+  }
+  $fileholder = $html_place_noslash; // file_place is defined in the code above whose inputs were already checked to be plain
+  $remote_file = $html_file_name; // file name is defined in the code above
+  if ($html_ftp_default == 1) {
+    if($html_place_noslash) {
+	  if(!ftp_mkdir($fp, $html_place_noslash)) {
+      $error_message .= "&error-unable-ftp-mkdir;";
+      drupal_set_message(t('Unable to create the'. $html_place_noslash .'directory'));
+	  }
+      if(!ftp_chdir($fp, $html_place_noslash)) {
+      $error_message .= "&error-unable-ftp-chdir;";
+	  drupal_set_message(t('Unable to change into the'. $html_place_noslash .'directory'));
+	  return;
+	 }
+    }
+	_savetoftp_copy_ftp($fp, 'files', '', $html_place_noslash);
+	//_savetoftp_copy_ftp($fp, 'sites', '', $html_place_noslash);
+	_savetoftp_copy_ftp($fp, 'modules', '', $html_place_noslash);
+	_savetoftp_copy_ftp($fp, 'themes', '', $html_place_noslash);
+	_savetoftp_copy_ftp($fp, 'misc', '', $html_place_noslash);
+    $html_site = 'http://'.$_SERVER[HTTP_HOST].base_path().'node/'.$node->nid;
+    $drupal_site = drupal_http_request($html_site);
+    $data = $drupal_site->data;
+    //strip out just the node/ if it's left over and replace it with the correct form of the link so that they actually find each other
+    //get rid of a base path if there is one
+    if(base_path() != '/'){
+      $data = str_replace(base_path(),'',$data);
+    }
+    //account for links back to home where they are just a backslash cause it's at the root
+    $data = str_replace('<a href="/"','<a href="index.html"',$data);
+    $data = str_replace('<a href=""','<a href="index.html"',$data);
+	$file = fopen($export_path . "/" . $html_file_name,"w");
+	if(!fwrite($file,$data)) {
+	  drupal_set_message(t('Unable to open the local file saved in the files directory'));
+	  return;
+	} 
+	$file_to_be_moved = fopen($export_path . "/" . $html_file_name,"r");
+	//drupal_set_message('file to be moved is'. $export_path . "/" . $html_file_name);
+      if (!ftp_fput($fp, $remote_file, $file_to_be_moved, FTP_BINARY)) {
+        $error_message .= "&error-unable-ftp-fput;";
+        drupal_set_message(t('Unable to put the file on the server, check if the file saved correctly in your Drupal files directory'));
+      } 
+    } else {
+    $file_to_be_moved = fopen($fileholder, "r");
+    if (!ftp_fput($fp, $remote_file, $file_to_be_moved, FTP_BINARY)) {
+      $error_message .= "&error-unable-ftp-fput;";
+      drupal_set_message(t('Unable to put the file on the server, check if the file saved correctly in your Drupal files directory'));
+    } 
+  }
+  ftp_close($fp);
+  }              
+}  
+/**
+ * Implementation of hook_submit().
+ * Delete a node from an ftp server based on form values.
+ */
+function _deleteftp_form_submit($form_id, $form_values) {
+  $node_id = arg(1);
+  if (is_numeric($node_id)) {
+  $node = node_load($node_id);
+  }
+  $html_name_to_delete = $node->field_htmlname[0]['value'];
+  $ftp_server = check_plain($form_values['ftp_server1']);
+  $ftp_uname = check_plain($form_values['ftp_user1']);
+  $ftp_pass = check_plain($form_values['ftp_pass1']);
+  $ftp_directory = check_plain($form_values['ftp_direct1']);
+  set_time_limit(0);
+  if (!$fp = ftp_connect($ftp_server, 21, 30)) {
+    drupal_set_message(t('Connection failed'));
+  }
+  if (!ftp_login($fp, $ftp_uname, $ftp_pass)) {
+    drupal_set_message(t('Login failed'));
+  }
+  if (!ftp_chdir($fp, $ftp_directory)) {
+    drupal_set_message(t('Unable to change directory to: '. $ftp_directory));
+  }
+  if (!ftp_delete($fp, $html_name_to_delete)) {
+    drupal_set_messaget(t('Unable to delete file:'. $html_name_to_delete));
+  }  
+}
+
+/**
+ * Implementation of hook_form_alter().
+ *  Define the form for saving to FTP
+ */  
+
+function savetoftp_form_alter($form_id, &$form) {
+  if (user_access('save to ftp')) {
+    drupal_add_js('$().ready(function() {$(\'#dialog\').jqm();});', 'inline');
+    drupal_add_js(drupal_get_path('module', 'savetoftp') .'/jqModal.js');
+    drupal_add_css(drupal_get_path('module', 'savetoftp') .'/jqModal.css');
+    if ($form_id == $form['#node']->type .'_node_form') {
+      $form['#suffix'] = t('<button type="button" id="but" onclick="document.getElementById(\'ftp1\').style.display = \'block\'">Publish to FTP</button><label for="but" class="labeler">&nbsp;This publishes the web page live to your FTP Server</label><div class="jqmWindow" id="ftp1" style="display:none">'. drupal_get_form('_savetoftp_form') .'</div><br /><button type="button" id="but1" onclick="document.getElementById(\'ftp2\').style.display = \'block\'">Unpublish</button><label for="but1" class="labeler">&nbsp;This removes the web page from the FTP Server</label><div class="jqmWindow" id="ftp2" style="display:none">'. drupal_get_form('_deleteftp_form') .'</div>');
+      $form['path']['path']['#required'] = TRUE;
+    }
+  }  
+}
+
+
+/** 
+ * Implementation hook_menu().
+ * Gives admin section for SaveToFTP
+ */
+
+function savetoftp_menu() {
+  $items = array();
+  $items[] = array(
+    'path' => 'admin/settings/savetoftp',
+    'title' => t('SavetoFtp HTML'),
+    'description' => t('Enter HTML into textboxes for use when presenting the page as a static HTML document'),
+    'position' => 'right',
+    'callback' => 'drupal_get_form',
+    'callback arguments' => array('savetoftp_admin_settings'),
+    'access' => user_access('save to ftp')
+  );
+  return $items;
+}
+
+/** 
+ * Implementation hook_settings. Allows users to enter in the html fields
+ */
+
+function savetoftp_admin_settings() {
+  $form['savetoftp_header'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Header'),
+    '#description' => t('This is everything stretching from the doctype declaration to just before the title'),
+    '#default_value' => variable_get('savetoftp_header', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <title>'),
+  );
+
+  $form['savetoftp_header2'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Header2'),
+    '#description' => t('This is everything stretching from after the title just before the node'),
+    '#default_value' => variable_get('savetoftp_header2', '</title></head><body>'),
+  );
+
+  $form['savetoftp_footer'] = array(
+    '#type' => 'textarea', 
+    '#title' => t('Footer'),
+    '#description' => t('This is everything stretching from after the node to the bottom of the page.'),
+    '#default_value' => variable_get('savetoftp_footer', '</body></html>'),
+  );
+  return system_settings_form($form);
+}
+
+function _savetoftp_copy_ftp($fp, $source, $dest, $base_folder){
+  // Simple copy for a file
+  if (is_file($source)) {
+	return ftp_put($fp, $source, $source, FTP_BINARY);
+  }
+  // Make destination directory
+  if (is_dir($source)) {  
+    if(!ftp_mkdir($fp, $source)) {
+	    drupal_set_message(t('Could not create the '. $source .' directory'));
+      }      
+    }
+
+  // Loop through the folder
+  $savetoftp_dir = dir($source);
+  while (false !== $entry = $savetoftp_dir->read()) {
+    //if this is the files folder then skip the pointers, the savetoftp directory (server == dead), and .htaccess files
+    //if not then Skip pointers to folders, .DS_Store, *.php, and .htaccess
+    if ($entry == '.' || $entry == '..' || $entry == 'README.txt' || $entry == 'LICENSE.txt' || $entry == '.DS_Store' || $entry == '.htaccess' || $entry == 'Thumbs.db' || strpos($entry,'.engine') != 0 || strpos($entry,'.php') != 0 || strpos($entry,'.inc') != 0 || strpos($entry,'.include') != 0 || strpos($entry,'.info') != 0 || strpos($entry,'.install') != 0 || strpos($entry,'.module') != 0){
+      continue;
+    }
+    // Deep copy directories, ignore the savetoftp ones
+    if ($dest !== "$source/$entry" && strpos($source,$base_folder) == 0 ) {
+      _savetoftp_copy_ftp($fp, "$source/$entry", "$source/$entry", $base_folder);
+    }
+  }
+  // Clean up
+  $savetoftp_dir->close();
+  return true;
+}

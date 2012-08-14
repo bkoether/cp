@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/jquery_update
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/jquery_update/LICENSE.txt
+END
+CHANGELOG.txt
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/jquery_update/CHANGELOG.txt
+END
+jquery_update.module
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/jquery_update/jquery_update.module
+END
+jquery_update.install
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/jquery_update/jquery_update.install
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/jquery_update/README.txt
+END
+jquery_update.info
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/jquery_update/jquery_update.info
+END
+compat.js
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/jquery_update/compat.js
+END

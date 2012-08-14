@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/taxonomy_xml
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/taxonomy_xml/LICENSE.txt
+END
+sample.xml
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/taxonomy_xml/sample.xml
+END
+taxonomy_xml.module
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/taxonomy_xml/taxonomy_xml.module
+END
+INSTALL.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/taxonomy_xml/INSTALL.txt
+END
+taxonomy_xml.info
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/taxonomy_xml/taxonomy_xml.info
+END
+README.txt
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/taxonomy_xml/README.txt
+END
+taxonomy.xsd
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/taxonomy_xml/taxonomy.xsd
+END

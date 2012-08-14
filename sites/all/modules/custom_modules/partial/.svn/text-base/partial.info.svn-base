@@ -1,0 +1,4 @@
+; $Id $
+name = Partial
+description = "partials are partial html templates"
+version = 0.3

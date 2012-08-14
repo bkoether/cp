@@ -1,0 +1,52 @@
+8
+
+dir
+721
+http://svn.dailydose.ca/dailydose.ca/tags/20111005-1/html/modules/ping
+http://svn.dailydose.ca
+
+
+
+2011-01-23T19:29:21.674052Z
+662
+weston
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0e0cc069-df17-4a3a-be03-5ea6ad17db6b
+
+ping.module
+file
+
+
+
+
+2011-10-06T06:58:05.000000Z
+2bf7e463368d12bfd3f72b059639929c
+2009-02-24T21:51:26.484105Z
+528
+weston
+
+ping.info
+file
+
+
+
+
+2011-10-06T06:58:05.000000Z
+e7e3ea8b0067480d3c646383f807f7f6
+2011-01-23T19:29:21.674052Z
+662
+weston
+

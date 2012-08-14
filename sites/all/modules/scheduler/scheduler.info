@@ -1,0 +1,8 @@
+name = Scheduler
+description = This module allows nodes to be published and unpublished on specified dates.
+
+; Information added by drupal.org packaging script on 2010-05-25
+version = "5.x-1.19"
+project = "scheduler"
+datestamp = "1274815207"
+

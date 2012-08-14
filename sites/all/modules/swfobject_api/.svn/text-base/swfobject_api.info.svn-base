@@ -1,0 +1,9 @@
+; $Id$
+name = SWFObject Module
+description = Implements the SWFObject Library, makes it easy for developers to add flash content
+
+; Information added by drupal.org packaging script on 2008-04-23
+version = "5.x-1.2-15"
+project = "swfobject_api"
+datestamp = "1208988339"
+

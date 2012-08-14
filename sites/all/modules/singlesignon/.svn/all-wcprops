@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/singlesignon
+END
+LICENSE.txt
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/singlesignon/LICENSE.txt
+END
+sessions_extra.inc
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/singlesignon/sessions_extra.inc
+END
+singlesignon.module
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/singlesignon/singlesignon.module
+END
+singlesignon.install
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/singlesignon/singlesignon.install
+END
+singlesignon.info
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/singlesignon/singlesignon.info
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/!svn/ver/721/dailydose.ca/tags/20111005-1/modules/singlesignon/README
+END

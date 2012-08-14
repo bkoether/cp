@@ -1,0 +1,79 @@
+8
+
+dir
+721
+http://svn.dailydose.ca/dailydose.ca/tags/20111005-1/modules/image/contrib/image_attach
+http://svn.dailydose.ca
+
+
+
+2011-01-23T19:43:31.772933Z
+664
+weston
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0e0cc069-df17-4a3a-be03-5ea6ad17db6b
+
+image_attach.info
+file
+
+
+
+
+2011-10-06T07:01:02.000000Z
+a9c2dfb6e08b34af8f71e6b77617b296
+2011-01-23T19:43:31.772933Z
+664
+weston
+
+image_attach.module
+file
+
+
+
+
+2011-10-06T07:01:02.000000Z
+503c43bb36f4616c20517e6a491357a1
+2011-01-23T19:43:31.772933Z
+664
+weston
+
+image_attach.install
+file
+
+
+
+
+2011-10-06T07:01:02.000000Z
+a4b87396c629e06d0bcb6789e6d443b1
+2011-01-23T19:43:31.772933Z
+664
+weston
+
+image_attach.css
+file
+
+
+
+
+2011-10-06T07:01:02.000000Z
+bce9a1e41222dbb9c352a2c964a90e88
+2011-01-23T19:43:31.772933Z
+664
+weston
+
+po
+dir
+

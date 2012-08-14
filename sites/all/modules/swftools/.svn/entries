@@ -1,0 +1,179 @@
+8
+
+dir
+721
+http://svn.dailydose.ca/dailydose.ca/tags/20111005-1/modules/swftools
+http://svn.dailydose.ca
+
+
+
+2008-08-27T00:48:49.326014Z
+64
+chris
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+0e0cc069-df17-4a3a-be03-5ea6ad17db6b
+
+swftools.admin.inc
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+f55d45a69fba8ce1b25ba05f10d445d0
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+swftools_integrate.admin.inc
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+251d177128ac0251fb51ccd569ae038d
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+swftools.install
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+5014f2c45ff2b1a471df34519e2d8db3
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+swfobject
+dir
+
+ufo
+dir
+
+swftools.admin.css
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+517d01dac03ce9f7cf0f01c86c48f7c4
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+LICENSE.txt
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+998ed0c116c0cebfcd9b2107b0d82973
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+genericplayers.module
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+8bada5b5fc816c61cfdeb889704769e9
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+lutman
+dir
+
+swftools.module
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+ec6f99e70a0a78b2becb64e0d18ea175
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+swftools_integrate.module
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+832acf6f276ed48d805e2dbce2ef9823
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+shared
+dir
+
+swftools.info
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+e440af4108484908a7880f6b59593b19
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+onepixelout
+dir
+
+simpleviewer
+dir
+
+swftools_integrate.info
+file
+
+
+
+
+2011-10-06T07:01:01.000000Z
+3f6128a573b0d03a2bc336e0264b9181
+2008-08-27T00:48:49.326014Z
+64
+chris
+has-props
+
+wijering
+dir
+

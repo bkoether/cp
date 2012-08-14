@@ -1,0 +1,5 @@
+; $Id $
+name = Vitamin City
+description = "Vitamin Multi-City Functionality"
+version = 1.0
+package = Vitamin

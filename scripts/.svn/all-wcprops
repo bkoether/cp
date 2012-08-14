@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/!svn/ver/721/dailydose.ca/tags/20111005-1/html/scripts
+END
+code-style.pl
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/721/dailydose.ca/tags/20111005-1/html/scripts/code-style.pl
+END
+cron-lynx.sh
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/!svn/ver/721/dailydose.ca/tags/20111005-1/html/scripts/cron-lynx.sh
+END
+code-clean.sh
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/!svn/ver/721/dailydose.ca/tags/20111005-1/html/scripts/code-clean.sh
+END
+cron-curl.sh
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/!svn/ver/721/dailydose.ca/tags/20111005-1/html/scripts/cron-curl.sh
+END
