@@ -5,7 +5,9 @@
  */
 
 /**
- * Mapping of taxonomies.
+ * Mapping and lookup of taxonomies.
+ *
+ * Keep all configuration that is defined by categories here.
  *
  * The category section of the map has the subject code
  * as the key and the title as the value.
@@ -17,6 +19,7 @@
  */
 function cp_export_map() {
   $map = array(
+    // Term IDs for cities
     'city' => array(
       '1' => 'VCR', //Vancouver
       '2' => 'TOR', //Toronto
@@ -24,6 +27,7 @@ function cp_export_map() {
       '669' => 'MTLF', //Montréal (French)
       '782' => 'CGY', //Calgary
     ),
+    // Mapping of category to CP subject code
     'category' => array(
       '4' => array( //HEALTH & BEAUTY
         'en' => array('xhealth' => 'Health'),
@@ -53,6 +57,16 @@ function cp_export_map() {
         'en' => array('Ufamily' => 'Home+Family'),
         'fr' => array('1FamilyFR' => 'Family'),
       ),
+    ),
+    // Information about vocab IDs
+    'vocabs' => array(
+      'tags' => 1,
+      'city' => 2,
+      'category' => 3,
+    ),
+    // Define which terms determine french content
+    'language' => array(
+      'french' => array('669'),
     ),
   );
   return $map;
@@ -152,40 +166,48 @@ function cp_export_save_node($nid) {
   // Decide which template file to use
   if ($node->type == 'blog') {
     $template_file = 'blog.xml';
+    $fn_id = 'Diary';
   }
   else {
     $template_file = 'daily_dose.xml';
+    $fn_id = 'Dose';
   }
   // Read the template file
   $template = file_get_contents(drupal_get_path('module', 'cp_export') . "/" . $template_file);
 
   if ($template) {
-    // Get the mapping
-    $search = array(
-      '[TITLE]',
-      '[ID]',
-      '[CREATED_LONG]',
-      '[CREATED_SHORT]',
-      '[BODY]'
-    );
-    $replace = array(
-      $node->title,
-      $node->id,
-      date(DATE_ATOM, $node->created),
-      format_date($node->created, 'custom', 'Ymd'),
-      _cp_export_process_body($node->body)
-    );
-    $new_file = str_replace($search, $replace, $template);
+    // Placeholders so that we only have to process each langugae once
+    $english = "";
+    $french = "";
 
-    $file_dir = file_create_path(file_directory_path().'/cp_export');
-    file_check_directory($file_dir, 1);
-    $export_file = $file_dir . '/' . time() . '.xml';
-    $file = fopen($export_file, "w");
-    if(!fwrite($file, $new_file)) {
-      drupal_set_message('Unable to write to local file', 'error');
-      return;
+    // Get the mapping data
+    $map = cp_export_map();
+
+    // Get the subject category
+    $subj = current(array_intersect_key($map['category'], array_keys($node->taxonomy)));
+
+    // Get the city versions
+    $versions = array_intersect_key($map['city'], array_keys($node->taxonomy));
+    foreach ($versions as $id => $city) {
+
+      // Check if it's french or english
+      if (in_array($id, $map['language']['french'])) {
+        // If no french version exists, create it now
+        if (empty($french)) {
+          $french = cp_export_token_replace($node, $template, 'fr', key($subj['fr']));
+        }
+        $fname = $city . '_' . $fn_id . '_' . current($subj['fr']) . '_' . format_date($node->created, 'custom', 'Ymd\THis') . '.xml';
+        cp_export_save_local($fname, $french, 'French');
+      }
+      else {
+        // If no english version exists, create it now
+        if (empty($english)) {
+          $english = cp_export_token_replace($node, $template, 'en', key($subj['en']));
+        }
+        $fname = $city . '_' . $fn_id . '_' . current($subj['en']) . '_' . format_date($node->created, 'custom', 'Ymd\THis') . '.xml';
+        cp_export_save_local($fname, $english, 'English');
+      }
     }
-    fclose($file);
   }
   else {
     drupal_set_message('Unable to read template file', 'error');
@@ -193,24 +215,161 @@ function cp_export_save_node($nid) {
 }
 
 /**
+ * Temporarly save nodes locally
+ */
+function cp_export_save_local($file_name, $content, $lang_dir) {
+  $file_dir = file_create_path(file_directory_path() . '/cp_export');
+  file_check_directory($file_dir, 1);
+
+  // $time_dir = variable_get('cp_export_cron', '');
+  // $file_dir = file_create_path($file_dir . '/' . $time_dir);
+  // file_check_directory($file_dir, 1);
+
+  $file_dir = file_create_path($file_dir . '/' . $lang_dir);
+  file_check_directory($file_dir, 1);
+
+  $export_file = $file_dir . '/' . $file_name;
+  $file = fopen($export_file, "w");
+  if(!fwrite($file, $content)) {
+    drupal_set_message('Unable to write to local file', 'error');
+    return FALSE;
+  }
+  else {
+    return TRUE;
+  }
+  fclose($file);
+}
+
+/**
+ * [cp_export_token_replace description]
+ */
+function cp_export_token_replace($node, $template, $lang, $subj) {
+
+  $map = cp_export_map();
+  $tags = array();
+  foreach ($node->taxonomy as $term) {
+    if ($term->vid == $map['vocabs']['tags']) {
+      $tags[] = $term->name;
+    }
+  }
+
+  // Process the body for paragraphs and slugline
+  $content = _cp_export_process_body($node->body);
+
+  // Set the replacement pattern
+  $search = array(
+    '[TITLE]',
+    '[ID]',
+    '[CREATED_LONG]',
+    '[CREATED_TEXT]',
+    '[CREATED_SHORT]',
+    '[YEAR]',
+    '[BODY]',
+    '[SLUGLINE]',
+    '[LANG]',
+    '[TAGS]',
+    '[SUBJECT]'
+  );
+  $replace = array(
+    $node->title,
+    $node->nid,
+    date(DATE_ATOM, $node->created),
+    format_date($node->created, 'custom', '\a\t G:i \o\n F j, Y'),
+    format_date($node->created, 'custom', 'Ymd'),
+    format_date($node->created, 'custom', 'Y'),
+    $content['body'],
+    $content['slugline'],
+    $lang,
+    implode(', ', $tags),
+    $subj
+  );
+
+  return str_replace($search, $replace, $template);
+}
+/**
  * Implements hook_cron().
  */
 function cp_export_cron() {
-  // Get all nodes that are set to be syndicated
-  $result = db_query('SELECT c.nid FROM {node} n LEFT JOIN {content_type_blog} c
-    ON n.nid = c.nid AND n.vid = c.vid
-    WHERE c.field_cp_syndication_flag_value = 1
-    AND c.field_cp_syndication_delivered_value IS NULL
-    AND c.field_cp_syndication_time_value <= NOW();');
+  // Get all blog nodes that are set to be syndicated
+  $result = db_query('SELECT n.nid, n.vid FROM {node} n
+    LEFT JOIN {content_field_cp_syndication_flag} sf ON n.nid = sf.nid AND n.vid = sf.vid
+    LEFT JOIN {content_field_cp_syndication_time} st ON n.nid = st.nid AND n.vid = st.vid
+    LEFT JOIN {content_field_cp_syndication_delivered} sd ON n.nid = sd.nid AND n.vid = sd.vid
+    WHERE sf.field_cp_syndication_flag_value = 1
+    AND sd.field_cp_syndication_delivered_value IS NULL
+    AND st.field_cp_syndication_time_value < NOW();');
 
   while($node = db_fetch_object($result)) {
-    if(cp_export_save_node($node->nid)){
-      watchdog('cp_syndication', 'Succesfully syndicated Node ID: ' . $node->nid, WATCHDOG_NOTICE, 'node/' . $node->nid);
+    cp_export_save_node($node->nid);
+    db_query('UPDATE {content_field_cp_syndication_delivered} sd
+      SET sd.field_cp_syndication_delivered_value = NOW()
+      WHERE sd.nid = %d AND sd.vid = %d', array($node->nid, $node->vid));
+  }
+
+
+  cp_export_move_files();
+  watchdog('cp_syndication', 'Cron run completed.');
+  // cache_clear_all();
+}
+
+/**
+ * Move files to the server
+ */
+function cp_export_move_files() {
+  $ftp_server = check_plain(variable_get('cp_ftp_server', ''));
+  $ftp_uname = check_plain(variable_get('cp_ftp_user', ''));
+  $ftp_pass = check_plain(variable_get('cp_ftp_pass', ''));
+  $ftp_directory = check_plain(variable_get('cp_ftp_dir', ''));
+  if (!$fp = ftp_connect($ftp_server, 21, 30)) {
+    drupal_set_message('Connection failed');
+    return;
+  }
+  if (!ftp_login($fp, $ftp_uname, $ftp_pass)) {
+    drupal_set_message('Login failed');
+    return;
+  }
+  if (!ftp_chdir($fp, $ftp_directory)) {
+    drupal_set_message('Unable to change directory to: '. $ftp_directory);
+    return;
+  }
+
+  // English first
+  $e_dir = file_directory_path() . '/cp_export/English';
+  if (is_dir($e_dir)) {
+    $files = file_scan_directory($e_dir, '.*');
+    // drupal_set_message('<pre>'.print_r(file_scan_directory($e_dir, '.*'),1).'</pre>');
+
+    if (!ftp_chdir($fp, 'English')) {
+      drupal_set_message('Unable to change directory to: English');
+      return;
     }
-    else {
-      watchdog('cp_syndication', 'Error while syndicating Node ID: ' . $node->nid, WATCHDOG_ERROR, 'node/' . $node->nid);
+    foreach ($files as $path => $file) {
+      if(ftp_put($fp, $file->basename, $path, FTP_BINARY)){
+        file_delete($path);
+      }
     }
   }
+
+  // French
+  $f_dir = file_directory_path() . '/cp_export/French';
+  if (is_dir($f_dir)) {
+    $files = file_scan_directory($e_dir, '.*');
+    // drupal_set_message('<pre>'.print_r(file_scan_directory($e_dir, '.*'),1).'</pre>');
+
+    if (!ftp_chdir($fp, '../French')) {
+      drupal_set_message('Unable to change directory to: French');
+      return;
+    }
+    foreach ($files as $path => $file) {
+      if(ftp_put($fp, $file->basename, $path, FTP_BINARY)){
+        file_delete($path);
+      }
+    }
+  }
+
+
+
+  ftp_close($fp);
 }
 
 /**
@@ -275,13 +434,23 @@ function _cp_export_process_body($body) {
   $text = strip_tags($body, '<p>');
 
   // Now split it into an array and loop through it.
+  $slugline = "";
   $clean = "";
   $count = 1;
   $parts = explode('</p>', $text);
   foreach ($parts as $p) {
     $p = strip_tags($p);
-    $clean .= '<CPStoryPara Number="' . $count . '">' . $p . '</CPStoryPara>';
-    $count++;
+    if (!empty($p)) {
+      // If this is the first p then save it as the slugline.
+      if($count == 1) {
+        $slugline = $p;
+      }
+      $clean .= '<CPStoryPara Number="' . $count . '">' . $p . '</CPStoryPara>';
+      $count++;
+    }
   }
-  return $clean;
+  return array(
+    'slugline' => $slugline,
+    'body' => $clean
+  );
 }

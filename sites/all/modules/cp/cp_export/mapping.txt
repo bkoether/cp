@@ -1,6 +1,21 @@
-Token           Field               Format
+Token           Source               Format
 [TITLE]         node->title
 [CREATED_LONG]  node->created        2012-07-11T12:50:16-04:00
 [ID]            node->nid
 [CREATED_SHORT] node->created       20120711
+[YEAR]          node->created       2012
 [BODY]          node->body          <CPStoryPara Number="x">...</CPStoryPara>
+[SLUGLINE]      node->body          (First paragraph of body)
+[CREATED_TEXT]  node->created       at 8:00 on July 13, 2012
+[TAGS]          node->taxonomy      vacation, family
+[LANG]          (city taxonomy)     'en' or 'fr'
+
+// Still needed
+[SUBJECT]       node->taxonomy      health
+[LINKS]         node->files         <CPLink Type="StoryPhoto" Number="1" SourceFilePath="./21030_1.jpg" SourceHeight="252" SourceWidth="400" Caption="Mick and  Bianca's wedding photo" />
+
+
+// Questions
+Byline: Where to take the author from?
+SubjectMatter: Only one? Not available for the blog
+Slugline: At the moment just the first p
