@@ -10,12 +10,4 @@ Token           Source               Format
 [TAGS]          node->taxonomy      vacation, family
 [LANG]          (city taxonomy)     'en' or 'fr'
 [SUBJECT]       node->taxonomy      health
-
-// Still needed
-[LINKS]         node->files         <CPLink Type="StoryPhoto" Number="1" SourceFilePath="./21030_1.jpg" SourceHeight="252" SourceWidth="400" Caption="Mick and  Bianca's wedding photo" />
-
-
-// Questions
-Byline: Where to take the author from?
-SubjectMatter: Only one? Not available for the blog
-Slugline: At the moment just the first p
+[IMAGES]         node->files         <CPLink Type="StoryPhoto" Number="1" SourceFilePath="./21030_1.jpg" SourceHeight="252" SourceWidth="400" Caption="Mick and  Bianca's wedding photo" />

@@ -99,26 +99,35 @@ function cp_export_menu($mayCache) {
  * Configuration form
  */
 function cp_export_settings() {
+  $form['cp_export_enable'] = array(
+    '#type' => 'checkbox',
+    '#default_value' => check_plain(variable_get('cp_export_enable', 0)),
+    '#title' => t('Enable syndication to CP on cron runs.')
+  );
   $form['cp_ftp_server'] = array(
+    '#title' => t('Server'),
     '#type' => 'textfield',
     '#default_value' => check_plain(variable_get('cp_ftp_server', '')),
     '#maxlength' => 50,
     '#description' => t('Enter your FTP Server'),
   );
   $form['cp_ftp_user'] = array(
+    '#title' => t('User'),
     '#type' => 'textfield',
     '#default_value' => check_plain(variable_get('cp_ftp_user', '')),
     '#maxlength' => 50,
     '#description' => t('Enter your FTP Username'),
   );
   $form['cp_ftp_pass'] = array(
-    '#type' => 'password',
+    '#title' => t('Password'),
+    '#type' => 'textfield',
     '#default_value' => check_plain(variable_get('cp_ftp_pass', 0)),
     '#maxlength' => 50,
     '#size' => 15,
     '#description' => t('Enter your FTP Password'),
   );
   $form['cp_ftp_dir'] = array(
+    '#title' => t('directory'),
     '#type' => 'textfield',
     '#default_value' => check_plain(variable_get('cp_ftp_dir', '')),
     '#maxlength' => 50,
@@ -176,9 +185,13 @@ function cp_export_save_node($nid) {
   $template = file_get_contents(drupal_get_path('module', 'cp_export') . "/" . $template_file);
 
   if ($template) {
-    // Placeholders so that we only have to process each langugae once
+    // Placeholders so that we only have to process each language once
     $english = "";
     $french = "";
+
+    // Get the images
+    $images = cp_export_get_images($node);
+    // drupal_set_message(check_plain($images));
 
     // Get the mapping data
     $map = cp_export_map();
@@ -194,7 +207,7 @@ function cp_export_save_node($nid) {
       if (in_array($id, $map['language']['french'])) {
         // If no french version exists, create it now
         if (empty($french)) {
-          $french = cp_export_token_replace($node, $template, 'fr', key($subj['fr']));
+          $french = cp_export_token_replace($node, $template, 'fr', key($subj['fr']), $images);
         }
         $fname = $city . '_' . $fn_id . '_' . current($subj['fr']) . '_' . format_date($node->created, 'custom', 'Ymd\THis') . '.xml';
         cp_export_save_local($fname, $french, 'French');
@@ -202,7 +215,7 @@ function cp_export_save_node($nid) {
       else {
         // If no english version exists, create it now
         if (empty($english)) {
-          $english = cp_export_token_replace($node, $template, 'en', key($subj['en']));
+          $english = cp_export_token_replace($node, $template, 'en', key($subj['en']), $images);
         }
         $fname = $city . '_' . $fn_id . '_' . current($subj['en']) . '_' . format_date($node->created, 'custom', 'Ymd\THis') . '.xml';
         cp_export_save_local($fname, $english, 'English');
@@ -241,9 +254,37 @@ function cp_export_save_local($file_name, $content, $lang_dir) {
 }
 
 /**
- * [cp_export_token_replace description]
+ * Save all the images into a seperate folder
  */
-function cp_export_token_replace($node, $template, $lang, $subj) {
+function cp_export_get_images($node){
+  // Make sure the files directory is created
+  $file_dir = file_create_path(file_directory_path() . '/cp_export');
+  file_check_directory($file_dir, 1);
+  $file_dir = file_create_path($file_dir . '/images');
+  file_check_directory($file_dir, 1);
+
+  $file_text = "";
+  $file_count = 1;
+  foreach ($node->files as $file) {
+    // Create new filename
+    $parts = explode('.', $file->filename);
+    $new_name = $node->nid . '_' . $file_count . '.' . array_pop($parts);
+    // Get dimension data
+    $info = image_get_info($file->filepath);
+
+    $file_text .= '<CPLink Type="StoryPhoto" Number="' . $file_count . '" SourceFilePath="../images/' . $new_name . '" SourceHeight="' . $info['height'] . '" SourceWidth="' . $info['width'] . '" Caption="' . $file->description . '" />';
+    file_copy($file->filepath, $file_dir . '/' . $new_name, FILE_EXISTS_REPLACE);
+    $file_count++;
+  }
+
+  return $file_text;
+
+}
+
+/**
+ * Replace the tokens in the templates with the real life content
+ */
+function cp_export_token_replace($node, $template, $lang, $subj, $images) {
 
   $map = cp_export_map();
   $tags = array();
@@ -268,7 +309,8 @@ function cp_export_token_replace($node, $template, $lang, $subj) {
     '[SLUGLINE]',
     '[LANG]',
     '[TAGS]',
-    '[SUBJECT]'
+    '[SUBJECT]',
+    '[IMAGES]'
   );
   $replace = array(
     $node->title,
@@ -281,7 +323,8 @@ function cp_export_token_replace($node, $template, $lang, $subj) {
     $content['slugline'],
     $lang,
     implode(', ', $tags),
-    $subj
+    $subj,
+    $images
   );
 
   return str_replace($search, $replace, $template);
@@ -290,26 +333,28 @@ function cp_export_token_replace($node, $template, $lang, $subj) {
  * Implements hook_cron().
  */
 function cp_export_cron() {
-  // Get all blog nodes that are set to be syndicated
-  $result = db_query('SELECT n.nid, n.vid FROM {node} n
-    LEFT JOIN {content_field_cp_syndication_flag} sf ON n.nid = sf.nid AND n.vid = sf.vid
-    LEFT JOIN {content_field_cp_syndication_time} st ON n.nid = st.nid AND n.vid = st.vid
-    LEFT JOIN {content_field_cp_syndication_delivered} sd ON n.nid = sd.nid AND n.vid = sd.vid
-    WHERE sf.field_cp_syndication_flag_value = 1
-    AND sd.field_cp_syndication_delivered_value IS NULL
-    AND st.field_cp_syndication_time_value < NOW();');
+  $run = variable_get('cp_export_enable', 0);
+  if($run) {
+    // Get all blog nodes that are set to be syndicated
+    $result = db_query('SELECT n.nid, n.vid FROM {node} n
+      LEFT JOIN {content_field_cp_syndication_flag} sf ON n.nid = sf.nid AND n.vid = sf.vid
+      LEFT JOIN {content_field_cp_syndication_time} st ON n.nid = st.nid AND n.vid = st.vid
+      LEFT JOIN {content_field_cp_syndication_delivered} sd ON n.nid = sd.nid AND n.vid = sd.vid
+      WHERE sf.field_cp_syndication_flag_value = 1
+      AND sd.field_cp_syndication_delivered_value IS NULL
+      AND st.field_cp_syndication_time_value < NOW();');
 
-  while($node = db_fetch_object($result)) {
-    cp_export_save_node($node->nid);
-    db_query('UPDATE {content_field_cp_syndication_delivered} sd
-      SET sd.field_cp_syndication_delivered_value = NOW()
-      WHERE sd.nid = %d AND sd.vid = %d', array($node->nid, $node->vid));
+    while($node = db_fetch_object($result)) {
+      cp_export_save_node($node->nid);
+      db_query('UPDATE {content_field_cp_syndication_delivered} sd
+        SET sd.field_cp_syndication_delivered_value = NOW()
+        WHERE sd.nid = %d AND sd.vid = %d', array($node->nid, $node->vid));
+    }
+
+    cp_export_move_files();
+    watchdog('cp_syndication', 'Cron run completed.');
+    // cache_clear_all();
   }
-
-
-  cp_export_move_files();
-  watchdog('cp_syndication', 'Cron run completed.');
-  // cache_clear_all();
 }
 
 /**
@@ -353,11 +398,27 @@ function cp_export_move_files() {
   // French
   $f_dir = file_directory_path() . '/cp_export/French';
   if (is_dir($f_dir)) {
-    $files = file_scan_directory($e_dir, '.*');
+    $files = file_scan_directory($f_dir, '.*');
     // drupal_set_message('<pre>'.print_r(file_scan_directory($e_dir, '.*'),1).'</pre>');
 
     if (!ftp_chdir($fp, '../French')) {
       drupal_set_message('Unable to change directory to: French');
+      return;
+    }
+    foreach ($files as $path => $file) {
+      if(ftp_put($fp, $file->basename, $path, FTP_BINARY)){
+        file_delete($path);
+      }
+    }
+  }
+
+  // Images
+  $i_dir = file_directory_path() . '/cp_export/images';
+  if (is_dir($i_dir)) {
+    $files = file_scan_directory($i_dir, '.*');
+
+    if (!ftp_chdir($fp, '../images')) {
+      drupal_set_message('Unable to change directory to: images');
       return;
     }
     foreach ($files as $path => $file) {
@@ -374,6 +435,8 @@ function cp_export_move_files() {
 
 /**
  * Implementation of hook_form_alter().
+ *
+ * Show/hide fields depending if the node has been syndicated or not.
  */
 function cp_export_form_alter($form_id, &$form) {
   if (isset($form['form_id']) && isset($form['#node'])) {
@@ -415,9 +478,6 @@ function cp_export_form_alter($form_id, &$form) {
       else {
         $form['syndication_settings']['field_cp_syndication_delivered']['#type'] = 'hidden';
       }
-
-
-
 
       unset($form['field_cp_syndication_flag']);
       unset($form['field_cp_syndication_time']);
