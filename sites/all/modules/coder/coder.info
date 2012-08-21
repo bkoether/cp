@@ -1,0 +1,9 @@
+name = Coder
+description = Developer Module that assists with code review and version upgrade
+package = Development
+
+; Information added by drupal.org packaging script on 2011-02-25
+version = "5.x-2.x-dev"
+project = "coder"
+datestamp = "1298618991"
+
