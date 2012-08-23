@@ -484,8 +484,6 @@ function _cp_export_process_body($body) {
     $p = trim($p, chr(0xC2).chr(0xA0));
     $p = trim( $p, '\xC2\xA0\n' );
 
-    drupal_set_message('<pre>'.print_r($p,1).'</pre>');
-
     // Only process the paragraph if it's not empty and not a &nbsp; tag.
     if (!empty($p)) {
       // If this is the first p then save it as the slugline.
