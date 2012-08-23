@@ -29,8 +29,8 @@
         <DateLine>[CREATED_TEXT]</DateLine>
         <CopyrightLine>Daily Dose Media, [YEAR]</CopyrightLine>
         <SlugLine>[SLUGLINE]</SlugLine>
-        <KeywordLineService>[TAGS]</KeywordLineService>
-        <KeywordLineContent></KeywordLineContent>
+        <KeywordLineService></KeywordLineService>
+        <KeywordLineContent>[TAGS]</KeywordLineContent>
       </NewsLines>
       <AdministrativeMetadata>
         <Source>

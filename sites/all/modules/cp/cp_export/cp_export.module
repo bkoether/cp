@@ -477,9 +477,17 @@ function _cp_export_process_body($body) {
   $count = 1;
   $parts = explode('</p>', $text);
   foreach ($parts as $p) {
-    $p = strip_tags($p);
+    // Remove all tags.
+    $p = trim(strip_tags($p));
+    // Now remove the pesky &nbsp;
+    $p = str_replace('&nbsp;', "", $p);
+    $p = trim($p, chr(0xC2).chr(0xA0));
+    $p = trim( $p, '\xC2\xA0\n' );
+
+    drupal_set_message('<pre>'.print_r($p,1).'</pre>');
+
     // Only process the paragraph if it's not empty and not a &nbsp; tag.
-    if (!empty($p) && $p != "&nbsp;") {
+    if (!empty($p)) {
       // If this is the first p then save it as the slugline.
       if ($count == 1) {
         $slugline = $p;
