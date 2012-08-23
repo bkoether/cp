@@ -19,52 +19,52 @@
  */
 function cp_export_map() {
   $map = array(
-    // Term IDs for cities
+    // Term IDs for cities.
     'city' => array(
-      '1' => 'VCR', //Vancouver
-      '2' => 'TOR', //Toronto
-      '3' => 'MTLE', //Montreal (English)
-      '669' => 'MTLF', //Montréal (French)
-      '782' => 'CGY', //Calgary
+      '1' => 'VCR', // Vancouver.
+      '2' => 'TOR', // Toronto.
+      '3' => 'MTLE', // Montreal (English).
+      '669' => 'MTLF', // Montréal (French).
+      '782' => 'CGY', // Calgary.
     ),
-    // Mapping of category to CP subject code
+    // Mapping of category to CP subject code.
     'category' => array(
-      '4' => array( //HEALTH & BEAUTY
+      '4' => array( // HEALTH & BEAUTY.
         'en' => array('xhealth' => 'Health'),
-        'fr' => array('frhealth' => 'Health'), //DUMMY ENTRIES
+        'fr' => array('frhealth' => 'Health'), // DUMMY ENTRIES.
       ),
-      '5' => array( //FASHION & SHOPPING
+      '5' => array( // FASHION & SHOPPING.
         'en' => array('fashion' => 'Fashion'),
-        'fr' => array('frfashion' => 'Fashion'), //DUMMY ENTRIES
+        'fr' => array('frfashion' => 'Fashion'), // DUMMY ENTRIES.
       ),
-      '6' => array(  //HOME & DECOR
-        'en' => array('home' => 'Home'), //DUMMY ENTRIES
-        'fr' => array('frhome' => 'Home'), //DUMMY ENTRIES
+      '6' => array(  // HOME & DECOR.
+        'en' => array('home' => 'Home'), // DUMMY ENTRIES.
+        'fr' => array('frhome' => 'Home'), // DUMMY ENTRIES.
       ),
-      '7' => array( //ARTS & CULTURE
-        'en' => array('arts' => 'Arts'), //DUMMY ENTRIES
-        'fr' => array('frarts' => 'Arts'), //DUMMY ENTRIES
+      '7' => array( // ARTS & CULTURE.
+        'en' => array('arts' => 'Arts'), // DUMMY ENTRIES.
+        'fr' => array('frarts' => 'Arts'), // DUMMY ENTRIES.
       ),
-      '8' => array( //TRAVEL & LEISURE
-        'en' => array('travel' => 'Travel'), //DUMMY ENTRIES
+      '8' => array( // TRAVEL & LEISURE.
+        'en' => array('travel' => 'Travel'), // DUMMY ENTRIES.
         'fr' => array('frtravel' => 'Travel'),
       ),
-      '9' => array( //DINING & NIGHTLIFE
+      '9' => array( // DINING & NIGHTLIFE.
         'en' => array('food' => 'Food'),
-        'fr' => array('frfood' => 'Food'), //DUMMY ENTRIES
+        'fr' => array('frfood' => 'Food'), // DUMMY ENTRIES.
       ),
-      '10' => array( //MOMS & KIDS
+      '10' => array( // MOMS & KIDS.
         'en' => array('Ufamily' => 'Home+Family'),
         'fr' => array('1FamilyFR' => 'Family'),
       ),
     ),
-    // Information about vocab IDs
+    // Information about vocab IDs.
     'vocabs' => array(
       'tags' => 1,
       'city' => 2,
       'category' => 3,
     ),
-    // Define which terms determine french content
+    // Define which terms determine french content.
     'language' => array(
       'french' => array('669'),
     ),
@@ -73,7 +73,7 @@ function cp_export_map() {
 }
 
 /**
- * Implements HOOK_perm().
+ * Implements hook_perm().
  */
 function cp_export_perm() {
   $permission = array('administer cp export');
@@ -81,13 +81,13 @@ function cp_export_perm() {
 }
 
 /**
- * Implements HOOK_menu().
+ * Implements hook_menu().
  */
 function cp_export_menu($may_cache) {
   if ($may_cache) {
     $items[] = array(
       'path' => 'admin/settings/cp_export',
-      'title' => t("CP Export"),
+      'title' => "CP Export",
       'callback' => 'drupal_get_form',
       'callback arguments' => array('cp_export_settings'),
       'access' => user_access('administer cp export'),
@@ -96,13 +96,13 @@ function cp_export_menu($may_cache) {
   }
 }
 /**
- * Configuration form
+ * Configuration form.
  */
 function cp_export_settings() {
   $form['cp_export_enable'] = array(
     '#type' => 'checkbox',
     '#default_value' => check_plain(variable_get('cp_export_enable', 0)),
-    '#title' => t('Enable syndication to CP on cron runs.')
+    '#title' => t('Enable syndication to CP on cron runs.'),
   );
   $form['cp_ftp_server'] = array(
     '#title' => t('Server'),
@@ -137,31 +137,18 @@ function cp_export_settings() {
 }
 
 /**
- * Implements HOOK_nodeapi().
+ * Implements hook_nodeapi().
  */
 function cp_export_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
   if ($node->type == 'blog' || $node->type == 'daily_dose') {
     switch ($op) {
       case 'insert':
-        // LEAVE IN FOR FUTURE USE
-      break;
+        // LEAVE IN FOR FUTURE USE.
+        break;
 
       case 'view':
-      // LEAVE IN FOR FUTURE USE
-      // Display a message that this node is syndicated
-      //   if (node_access('update', $node) && isset($node->field_syndicate_content[0]['value']) && $node->field_syndicate_content[0]['value']) {
-
-      //     $syn_time = $node->field_syndication_time[0]['value'];
-      //     $time_text = format_date($syn_time, 'large');
-      //     // Determine if the syndication time is in the past or future.
-      //     if($syn_time > time()){
-      //       drupal_set_message('This node will be queued for syndication on:<br/>' . $time_text);
-      //     }
-      //     else {
-      //       drupal_set_message('This node was queued for syndication on:<br/>' . $time_text);
-      //     }
-      //   }
-      // break;
+        // LEAVE IN FOR FUTURE USE.
+        break;
     }
   }
 }
@@ -172,7 +159,7 @@ function cp_export_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
 function cp_export_save_node($nid) {
   $node = node_load($nid);
 
-  // Decide which template file to use
+  // Decide which template file to use.
   if ($node->type == 'blog') {
     $template_file = 'blog.xml';
     $fn_id = 'Diary';
@@ -181,43 +168,42 @@ function cp_export_save_node($nid) {
     $template_file = 'daily_dose.xml';
     $fn_id = 'Dose';
   }
-  // Read the template file
-  $template = file_get_contents(drupal_get_path('module', 'cp_export') ."/". $template_file);
+  // Read the template file.
+  $template = file_get_contents(drupal_get_path('module', 'cp_export') . "/" . $template_file);
 
   if ($template) {
-    // Placeholders so that we only have to process each language once
+    // Placeholders so that we only have to process each language once.
     $english = "";
     $french = "";
 
-    // Get the images
+    // Get the images.
     $images = cp_export_get_images($node);
-    // drupal_set_message(check_plain($images));
 
-    // Get the mapping data
+    // Get the mapping data.
     $map = cp_export_map();
 
-    // Get the subject category
+    // Get the subject category.
     $subj = current(array_intersect_key($map['category'], $node->taxonomy));
 
-    // Get the city versions
+    // Get the city versions.
     $versions = array_intersect_key($map['city'], $node->taxonomy);
     foreach ($versions as $id => $city) {
 
-      // Check if it's french or english
+      // Check if it's french or english.
       if (in_array($id, $map['language']['french'])) {
-        // If no french version exists, create it now
+        // If no french version exists, create it now.
         if (empty($french)) {
           $french = cp_export_token_replace($node, $template, 'fr', key($subj['fr']), $images);
         }
-        $fname = $city .'_'. $fn_id .'_'. current($subj['fr']) .'_'. format_date($node->created, 'custom', 'Ymd\THis') .'.xml';
+        $fname = $city . '_' . $fn_id . '_' . current($subj['fr']) . '_' . format_date($node->created, 'custom', 'Ymd\THis') . '.xml';
         cp_export_save_local($fname, $french, 'French');
       }
       else {
-        // If no english version exists, create it now
+        // If no english version exists, create it now.
         if (empty($english)) {
           $english = cp_export_token_replace($node, $template, 'en', key($subj['en']), $images);
         }
-        $fname = $city .'_'. $fn_id .'_'. current($subj['en']) .'_'. format_date($node->created, 'custom', 'Ymd\THis') .'.xml';
+        $fname = $city . '_' . $fn_id . '_' . current($subj['en']) . '_' . format_date($node->created, 'custom', 'Ymd\THis') . '.xml';
         cp_export_save_local($fname, $english, 'English');
       }
     }
@@ -228,16 +214,16 @@ function cp_export_save_node($nid) {
 }
 
 /**
- * Temporarly save nodes locally
+ * Temporarly save nodes locally.
  */
 function cp_export_save_local($file_name, $content, $lang_dir) {
-  $file_dir = file_create_path(file_directory_path() .'/cp_export');
+  $file_dir = file_create_path(file_directory_path() . '/cp_export');
   file_check_directory($file_dir, 1);
 
-  $file_dir = file_create_path($file_dir .'/'. $lang_dir);
+  $file_dir = file_create_path($file_dir . '/' . $lang_dir);
   file_check_directory($file_dir, 1);
 
-  $export_file = $file_dir .'/'. $file_name;
+  $export_file = $file_dir . '/' . $file_name;
   $file = fopen($export_file, "w");
   if (!fwrite($file, $content)) {
     drupal_set_message('Unable to write to local file', 'error');
@@ -250,26 +236,26 @@ function cp_export_save_local($file_name, $content, $lang_dir) {
 }
 
 /**
- * Save all the images into a seperate folder
+ * Save all the images into a seperate folder.
  */
 function cp_export_get_images($node) {
-  // Make sure the files directory is created
-  $file_dir = file_create_path(file_directory_path() .'/cp_export');
+  // Make sure the files directory is created.
+  $file_dir = file_create_path(file_directory_path() . '/cp_export');
   file_check_directory($file_dir, 1);
-  $file_dir = file_create_path($file_dir .'/images');
+  $file_dir = file_create_path($file_dir . '/images');
   file_check_directory($file_dir, 1);
 
   $file_text = "";
   $file_count = 1;
   foreach ($node->files as $file) {
-    // Create new filename
+    // Create new filename.
     $parts = explode('.', $file->filename);
-    $new_name = $node->nid .'_'. $file_count .'.'. array_pop($parts);
-    // Get dimension data
+    $new_name = $node->nid . '_' . $file_count . '.' . array_pop($parts);
+    // Get dimension data.
     $info = image_get_info($file->filepath);
 
-    $file_text .= '<CPLink Type="StoryPhoto" Number="'. $file_count .'" SourceFilePath="../images/'. $new_name .'" SourceHeight="'. $info['height'] .'" SourceWidth="'. $info['width'] .'" Caption="'. $file->description .'" />';
-    file_copy($file->filepath, $file_dir .'/'. $new_name, FILE_EXISTS_REPLACE);
+    $file_text .= '<CPLink Type="StoryPhoto" Number="' . $file_count . '" SourceFilePath="../images/' . $new_name . '" SourceHeight="' . $info['height'] . '" SourceWidth="' . $info['width'] . '" Caption="' . $file->description . '" />';
+    file_copy($file->filepath, $file_dir . '/' . $new_name, FILE_EXISTS_REPLACE);
     $file_count++;
   }
 
@@ -277,7 +263,7 @@ function cp_export_get_images($node) {
 }
 
 /**
- * Replace the tokens in the templates with the real life content
+ * Replace the tokens in the templates with the real life content.
  */
 function cp_export_token_replace($node, $template, $lang, $subj, $images) {
 
@@ -289,10 +275,10 @@ function cp_export_token_replace($node, $template, $lang, $subj, $images) {
     }
   }
 
-  // Process the body for paragraphs and slugline
+  // Process the body for paragraphs and slugline.
   $content = _cp_export_process_body($node->body);
 
-  // Set the replacement pattern
+  // Set the replacement pattern.
   $search = array(
     '[TITLE]',
     '[ID]',
@@ -305,7 +291,7 @@ function cp_export_token_replace($node, $template, $lang, $subj, $images) {
     '[LANG]',
     '[TAGS]',
     '[SUBJECT]',
-    '[IMAGES]'
+    '[IMAGES]',
   );
   $replace = array(
     $node->title,
@@ -319,7 +305,7 @@ function cp_export_token_replace($node, $template, $lang, $subj, $images) {
     $lang,
     implode(', ', $tags),
     $subj,
-    $images
+    $images,
   );
 
   return str_replace($search, $replace, $template);
@@ -330,7 +316,7 @@ function cp_export_token_replace($node, $template, $lang, $subj, $images) {
 function cp_export_cron() {
   $run = variable_get('cp_export_enable', 0);
   if ($run) {
-    // Get all blog nodes that are set to be syndicated
+    // Get all blog nodes that are set to be syndicated.
     $result = db_query('SELECT n.nid, n.vid FROM {node} n
       LEFT JOIN {content_field_cp_syndication_flag} sf ON n.nid = sf.nid AND n.vid = sf.vid
       LEFT JOIN {content_field_cp_syndication_time} st ON n.nid = st.nid AND n.vid = st.vid
@@ -355,7 +341,7 @@ function cp_export_cron() {
 }
 
 /**
- * Move files to the server
+ * Move files to the server.
  */
 function cp_export_move_files() {
   $ftp_server = check_plain(variable_get('cp_ftp_server', ''));
@@ -371,12 +357,12 @@ function cp_export_move_files() {
     return;
   }
   if (!ftp_chdir($fp, $ftp_directory)) {
-    drupal_set_message('Unable to change directory to: '. $ftp_directory);
+    drupal_set_message('Unable to change directory to: ' . $ftp_directory);
     return;
   }
 
-  // English first
-  $e_dir = file_directory_path() .'/cp_export/English';
+  // English first.
+  $e_dir = file_directory_path() . '/cp_export/English';
   if (is_dir($e_dir)) {
     $files = file_scan_directory($e_dir, '.*');
 
@@ -391,8 +377,8 @@ function cp_export_move_files() {
     }
   }
 
-  // French
-  $f_dir = file_directory_path() .'/cp_export/French';
+  // French.
+  $f_dir = file_directory_path() . '/cp_export/French';
   if (is_dir($f_dir)) {
     $files = file_scan_directory($f_dir, '.*');
 
@@ -407,8 +393,8 @@ function cp_export_move_files() {
     }
   }
 
-  // Images
-  $i_dir = file_directory_path() .'/cp_export/images';
+  // Images.
+  $i_dir = file_directory_path() . '/cp_export/images';
   if (is_dir($i_dir)) {
     $files = file_scan_directory($i_dir, '.*');
 
@@ -427,7 +413,7 @@ function cp_export_move_files() {
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implements hook_form_alter().
  *
  * Show/hide fields depending if the node has been syndicated or not.
  */
@@ -436,27 +422,26 @@ function cp_export_form_alter($form_id, &$form) {
     if ($form_id == 'blog_node_form' || $form_id == 'daily_dose_node_form') {
       $node = $form['#node'];
 
-      // drupal_set_message('<pre>'.print_r($node,1).'</pre>');
-      // Add a syndication fieldset
+      // Add a syndication fieldset.
       $form['syndication_settings'] = array(
         '#type' => 'fieldset',
         '#title' => t('Syndication options'),
         '#collapsible' => TRUE,
         '#collapsed' => $node->field_cp_syndication_flag[0]['value'] ? FALSE : TRUE,
-        '#weight' => 36
+        '#weight' => 36,
       );
 
-      // Move the fields into the fieldset
+      // Move the fields into the fieldset.
       $form['syndication_settings']['field_cp_syndication_flag'] = $form['field_cp_syndication_flag'];
       $form['syndication_settings']['field_cp_syndication_flag']['#weight'] = -1;
 
       $form['syndication_settings']['field_cp_syndication_time'] = $form['field_cp_syndication_time'];
       $form['syndication_settings']['field_cp_syndication_delivered'] = $form['field_cp_syndication_delivered'];
 
-      // If a deliver time is set we show that date and hide all other fields
+      // If a deliver time is set we show that date and hide all other fields.
       if ($node->field_cp_syndication_delivered[0]['value']) {
         $form['syndication_settings']['information'] = array(
-          '#value' => t('This post was syndicated on: ') . $node->field_cp_syndication_delivered[0]['value']
+          '#value' => t('This post was syndicated on: ') . $node->field_cp_syndication_delivered[0]['value'],
         );
 
         $form['syndication_settings']['field_cp_syndication_flag']['#prefix'] = '<div style="display:none;">';
@@ -483,7 +468,7 @@ function cp_export_form_alter($form_id, &$form) {
  * Helper function to clean out the body text.
  */
 function _cp_export_process_body($body) {
-  // Strip everything beside p tags
+  // Strip everything beside p tags.
   $text = strip_tags($body, '<p>');
 
   // Now split it into an array and loop through it.
@@ -493,17 +478,18 @@ function _cp_export_process_body($body) {
   $parts = explode('</p>', $text);
   foreach ($parts as $p) {
     $p = strip_tags($p);
-    if (!empty($p)) {
+    // Only process the paragraph if it's not empty and not a &nbsp; tag.
+    if (!empty($p) && $p != "&nbsp;") {
       // If this is the first p then save it as the slugline.
       if ($count == 1) {
         $slugline = $p;
       }
-      $clean .= '<CPStoryPara Number="'. $count .'">'. $p .'</CPStoryPara>';
+      $clean .= '<CPStoryPara Number="' . $count . '">' . $p . '</CPStoryPara>';
       $count++;
     }
   }
   return array(
     'slugline' => $slugline,
-    'body' => $clean
+    'body' => $clean,
   );
 }
