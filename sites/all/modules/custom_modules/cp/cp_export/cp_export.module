@@ -30,31 +30,58 @@ function cp_export_map() {
     // Mapping of category to CP subject code.
     'category' => array(
       '4' => array( // HEALTH & BEAUTY.
-        'en' => array('xhealth' => 'Health'),
-        'fr' => array('frhealth' => 'Health'), // DUMMY ENTRIES.
+        'en' => array(
+          'Health' => 'xhealth',
+          'lifestyle' => 'Lifestyle',
+        ),
+        'fr' => array('Hsante' => 'Santé'),
       ),
       '5' => array( // FASHION & SHOPPING.
         'en' => array('fashion' => 'Fashion'),
-        'fr' => array('frfashion' => 'Fashion'), // DUMMY ENTRIES.
+        'fr' => array('fashion' => 'Fashion'), // No french category provided.
       ),
       '6' => array(  // HOME & DECOR.
-        'en' => array('home' => 'Home'), // DUMMY ENTRIES.
-        'fr' => array('frhome' => 'Home'), // DUMMY ENTRIES.
+        'en' => array(
+          'Ufamily' => 'Home+Family',
+          'lifestyle' => 'Lifestyle',
+        ),
+        'fr' => array('Ufamily' => 'Home+Family'), // No french category provided.
       ),
       '7' => array( // ARTS & CULTURE.
-        'en' => array('arts' => 'Arts'), // DUMMY ENTRIES.
-        'fr' => array('frarts' => 'Arts'), // DUMMY ENTRIES.
+        'en' => array(
+          'entertainment' => 'Entertainment',
+          'books' => 'Books',
+          'film' => 'Film',
+          'lifestyle' => 'Lifestyle',
+          'music' => 'Music',
+          'tv' => 'Television',
+        ),
+        'fr' => array(
+          'FrMusic' => 'Musique',
+          'FrFilm' => 'Cinema',
+          'FrTV' => 'Television',
+          'Arts' => 'Nouvelles arts et spectacles',
+        ),
       ),
       '8' => array( // TRAVEL & LEISURE.
-        'en' => array('travel' => 'Travel'), // DUMMY ENTRIES.
+        'en' => array(
+          'utravel' => 'Travel',
+          'lifestyle' => 'Lifestyle',
+        ),
         'fr' => array('frtravel' => 'Travel'),
       ),
       '9' => array( // DINING & NIGHTLIFE.
-        'en' => array('food' => 'Food'),
-        'fr' => array('frfood' => 'Food'), // DUMMY ENTRIES.
+        'en' => array(
+          'food' => 'Food',
+          'lifestyle' => 'Lifestyle',
+        ),
+        'fr' => array('food' => 'Food'), // No french category provided.
       ),
       '10' => array( // MOMS & KIDS.
-        'en' => array('Ufamily' => 'Home+Family'),
+        'en' => array(
+          'Ufamily' => 'Home+Family',
+          'lifestyle' => 'Lifestyle',
+        ),
         'fr' => array('1FamilyFR' => 'Family'),
       ),
     ),
@@ -172,12 +199,6 @@ function cp_export_save_node($nid) {
   $template = file_get_contents(drupal_get_path('module', 'cp_export') . "/" . $template_file);
 
   if ($template) {
-    // Placeholders so that we only have to process each language once.
-    $english = "";
-    $french = "";
-
-    // Get the images.
-    $images = cp_export_get_images($node);
 
     // Get the mapping data.
     $map = cp_export_map();
@@ -191,20 +212,26 @@ function cp_export_save_node($nid) {
 
       // Check if it's french or english.
       if (in_array($id, $map['language']['french'])) {
-        // If no french version exists, create it now.
-        if (empty($french)) {
-          $french = cp_export_token_replace($node, $template, 'fr', key($subj['fr']), $images);
-        }
-        $fname = $city . '_' . $fn_id . '_' . current($subj['fr']) . '_' . format_date($node->created, 'custom', 'Ymd\THis') . '.xml';
-        cp_export_save_local($fname, $french, 'French');
+        $french = "";
+        $fname = $city . '_' . $fn_id . '_' . current($subj['fr']) . '_' . format_date($node->created, 'custom', 'Ymd\THis');
+        // Get the images.
+        $images = cp_export_get_images($node, $fname, 'French');
+
+        $french = cp_export_token_replace($node, $template, 'fr', $subj['fr'], $images);
+
+        // Save the xml.
+        cp_export_save_local($fname . '.xml', $french, 'French');
       }
       else {
-        // If no english version exists, create it now.
-        if (empty($english)) {
-          $english = cp_export_token_replace($node, $template, 'en', key($subj['en']), $images);
-        }
-        $fname = $city . '_' . $fn_id . '_' . current($subj['en']) . '_' . format_date($node->created, 'custom', 'Ymd\THis') . '.xml';
-        cp_export_save_local($fname, $english, 'English');
+        $english = "";
+        $fname = $city . '_' . $fn_id . '_' . current($subj['en']) . '_' . format_date($node->created, 'custom', 'Ymd\THis');
+        // Get the images.
+        $images = cp_export_get_images($node, $fname, 'English');
+
+        $english = cp_export_token_replace($node, $template, 'en', $subj['en'], $images);
+
+        // Save the xml.
+        cp_export_save_local($fname . '.xml', $english, 'English');
       }
     }
   }
@@ -238,11 +265,11 @@ function cp_export_save_local($file_name, $content, $lang_dir) {
 /**
  * Save all the images into a seperate folder.
  */
-function cp_export_get_images($node) {
+function cp_export_get_images($node, $fname, $dir) {
   // Make sure the files directory is created.
   $file_dir = file_create_path(file_directory_path() . '/cp_export');
   file_check_directory($file_dir, 1);
-  $file_dir = file_create_path($file_dir . '/images');
+  $file_dir = file_create_path($file_dir . '/' . $dir);
   file_check_directory($file_dir, 1);
 
   $file_text = "";
@@ -250,11 +277,11 @@ function cp_export_get_images($node) {
   foreach ($node->files as $file) {
     // Create new filename.
     $parts = explode('.', $file->filename);
-    $new_name = $node->nid . '_' . $file_count . '.' . array_pop($parts);
+    $new_name = $fname . '_' . $file_count . '.' . array_pop($parts);
     // Get dimension data.
     $info = image_get_info($file->filepath);
 
-    $file_text .= '<CPLink Type="StoryPhoto" Number="' . $file_count . '" SourceFilePath="../images/' . $new_name . '" SourceHeight="' . $info['height'] . '" SourceWidth="' . $info['width'] . '" Caption="' . $file->description . '" />';
+    $file_text .= '<CPLink Type="StoryPhoto" Number="' . $file_count . '" SourceFilePath="./' . $new_name . '" SourceHeight="' . $info['height'] . '" SourceWidth="' . $info['width'] . '" Caption="' . $file->description . '" />';
     file_copy($file->filepath, $file_dir . '/' . $new_name, FILE_EXISTS_REPLACE);
     $file_count++;
   }
@@ -265,7 +292,7 @@ function cp_export_get_images($node) {
 /**
  * Replace the tokens in the templates with the real life content.
  */
-function cp_export_token_replace($node, $template, $lang, $subj, $images) {
+function cp_export_token_replace($node, $template, $lang, $subjects, $images) {
 
   $map = cp_export_map();
   $tags = array();
@@ -277,6 +304,8 @@ function cp_export_token_replace($node, $template, $lang, $subj, $images) {
 
   // Process the body for paragraphs and slugline.
   $content = _cp_export_process_body($node->body);
+  // Process mutiple subjects.
+  $subj = _cp_export_process_subj($subjects);
 
   // Set the replacement pattern.
   $search = array(
@@ -481,8 +510,8 @@ function _cp_export_process_body($body) {
     $p = trim(strip_tags($p));
     // Now remove the pesky &nbsp;
     $p = str_replace('&nbsp;', "", $p);
-    $p = trim($p, chr(0xC2).chr(0xA0));
-    $p = trim( $p, '\xC2\xA0\n' );
+    $p = trim($p, chr(0xC2) . chr(0xA0));
+    $p = trim($p, '\xC2\xA0\n');
 
     // Only process the paragraph if it's not empty and not a &nbsp; tag.
     if (!empty($p)) {
@@ -498,4 +527,15 @@ function _cp_export_process_body($body) {
     'slugline' => $slugline,
     'body' => $clean,
   );
+}
+
+/**
+ * Helper function to process multiple subjects.
+ */
+function _cp_export_process_subj($subjects) {
+  $out = "";
+  foreach ($subjects as $key => $value) {
+    $out .= '<SubjectMatter FormalName="' . $key . '" />';
+  }
+  return $out;
 }

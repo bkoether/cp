@@ -40,7 +40,7 @@
       <DescriptiveMetadata>
         <Language FormalName="[LANG]" Scheme="Language" />
         <SubjectCode>
-          <SubjectMatter FormalName="[SUBJECT]" />
+          [SUBJECT]
         </SubjectCode>
       </DescriptiveMetadata>
       <ICopyrightdata>
