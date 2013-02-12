@@ -189,14 +189,17 @@ function cp_export_save_node($nid) {
   // Decide which template file to use.
   if ($node->type == 'blog') {
     $template_file = 'blog.xml';
+    $template_txt = 'blog.txt';
     $fn_id = 'Diary';
   }
   else {
     $template_file = 'daily_dose.xml';
+    $template_txt = 'daily_dose.txt';
     $fn_id = 'Dose';
   }
   // Read the template file.
   $template = file_get_contents(drupal_get_path('module', 'cp_export') . "/" . $template_file);
+  $text_template = file_get_contents(drupal_get_path('module', 'cp_export') . "/" . $template_txt);
 
   if ($template) {
 
@@ -218,9 +221,11 @@ function cp_export_save_node($nid) {
         $images = cp_export_get_images($node, $fname, 'French');
 
         $french = cp_export_token_replace($node, $template, 'fr', $subj['fr'], $images);
+        $french_txt = cp_export_token_replace($node, $text_template, 'fr', $subj['fr'], $images, TRUE);
 
         // Save the xml.
         cp_export_save_local($fname . '.xml', $french, 'French');
+        cp_export_save_local($fname . '.txt', $french_txt, 'French');
       }
       else {
         $english = "";
@@ -229,9 +234,10 @@ function cp_export_save_node($nid) {
         $images = cp_export_get_images($node, $fname, 'English');
 
         $english = cp_export_token_replace($node, $template, 'en', $subj['en'], $images);
-
+        $english_txt = cp_export_token_replace($node, $text_template, 'en', $subj['en'], $images, TRUE);
         // Save the xml.
         cp_export_save_local($fname . '.xml', $english, 'English');
+        cp_export_save_local($fname . '.txt', $english_txt, 'English');
       }
     }
   }
@@ -292,7 +298,7 @@ function cp_export_get_images($node, $fname, $dir) {
 /**
  * Replace the tokens in the templates with the real life content.
  */
-function cp_export_token_replace($node, $template, $lang, $subjects, $images) {
+function cp_export_token_replace($node, $template, $lang, $subjects, $images, $txt = FALSE) {
 
   $map = cp_export_map();
   $tags = array();
@@ -303,7 +309,7 @@ function cp_export_token_replace($node, $template, $lang, $subjects, $images) {
   }
 
   // Process the body for paragraphs and slugline.
-  $content = _cp_export_process_body($node->body);
+  $content = _cp_export_process_body($node->body, $txt);
   // Process mutiple subjects.
   $subj = _cp_export_process_subj($subjects);
 
@@ -330,7 +336,7 @@ function cp_export_token_replace($node, $template, $lang, $subjects, $images) {
     format_date($node->created, 'custom', 'Ymd'),
     format_date($node->created, 'custom', 'Y'),
     $content['body'],
-    $content['slugline'],
+    str_replace("content/", "", $node->path),
     $lang,
     implode(', ', $tags),
     $subj,
@@ -400,7 +406,7 @@ function cp_export_move_files() {
       return;
     }
     foreach ($files as $path => $file) {
-      if (ftp_put($fp, $file->basename, $path, FTP_BINARY)) {
+      if (ftp_put($fp, $file->basename, $path, FTP_ASCII)) {
         file_delete($path);
       }
     }
@@ -496,7 +502,7 @@ function cp_export_form_alter($form_id, &$form) {
 /**
  * Helper function to clean out the body text.
  */
-function _cp_export_process_body($body) {
+function _cp_export_process_body($body, $txt) {
   // Strip everything beside p tags.
   $text = strip_tags($body, '<p>');
 
@@ -508,10 +514,11 @@ function _cp_export_process_body($body) {
   foreach ($parts as $p) {
     // Remove all tags.
     $p = trim(strip_tags($p));
+    $p = html_entity_decode($p, ENT_QUOTES);
     // Now remove the pesky &nbsp;
     $p = str_replace('&nbsp;', "", $p);
-    $p = trim($p, chr(0xC2) . chr(0xA0));
-    $p = trim($p, '\xC2\xA0\n');
+    // $p = trim($p, chr(0xC2) . chr(0xA0));
+    // $p = trim($p, '\xC2\xA0\n');
 
     // Only process the paragraph if it's not empty and not a &nbsp; tag.
     if (!empty($p)) {
@@ -519,13 +526,13 @@ function _cp_export_process_body($body) {
       if ($count == 1) {
         $slugline = $p;
       }
-      $clean .= '<CPStoryPara Number="' . $count . '">' . $p . '</CPStoryPara>';
+      $clean .= $txt ? $p . "\n\n\n": '<CPStoryPara Number="' . $count . '">' . $p . '</CPStoryPara>';
       $count++;
     }
   }
   return array(
     'slugline' => $slugline,
-    'body' => $clean,
+    'body' => _cp_export_convert_smart_quotes($clean),
   );
 }
 
@@ -538,4 +545,8 @@ function _cp_export_process_subj($subjects) {
     $out .= '<SubjectMatter FormalName="' . $key . '" />';
   }
   return $out;
+}
+
+function _cp_export_convert_smart_quotes($text) {
+  return iconv('UTF-8', 'ASCII//TRANSLIT', $text);
 }

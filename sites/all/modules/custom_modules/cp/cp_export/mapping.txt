@@ -5,7 +5,7 @@ Token           Source               Format
 [CREATED_SHORT] node->created       20120711
 [YEAR]          node->created       2012
 [BODY]          node->body          <CPStoryPara Number="x">...</CPStoryPara>
-[SLUGLINE]      node->body          (First paragraph of body)
+[SLUGLINE]      node->path          falling-autumn-jewels
 [CREATED_TEXT]  node->created       at 8:00 on July 13, 2012
 [TAGS]          node->taxonomy      vacation, family
 [LANG]          (city taxonomy)     'en' or 'fr'
